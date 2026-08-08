@@ -3,7 +3,10 @@
 * **On NN home:**
 
   ```bash
+  #FD inputs
   export OA_INPUT_FOLDER=/gpfs/projects/McGrewGroup/uyevarou/gudi-inputs/lbl/v5/
+  #ND inputs
+  export ND_INPUTS=/gpfs/projects/McGrewGroup/uyevarou/Work/ND_workshop/
   ```
 
 * **On dunegpvm:**
@@ -48,8 +51,8 @@ Run the following command:
 
 ```bash
 # Clone the main repo
-git clone https://github.com/GUNDAM-DUNE-Inputs/gudi-lbl-tdr25a
-cd gudi-lbl-tdr25a
+git clone https://github.com/GUNDAM-DUNE-Inputs/gudi-lblsens-gen2a
+cd gudi-lblsens-gen2a
 
 # Initialize and update submodules
 git submodule init
@@ -204,6 +207,8 @@ export NUOSCILLATOR_ROOT_LIB=/YOURPATH/gundamOscAnaTools/resources/TabulateNuOsc
 
 ```bash
 ./submit_DUNE.sh
+#To run ND inputs and a few FD input
+./submit_DUNE_ND.sh
 ```
 
 Happy fitting! 😊
