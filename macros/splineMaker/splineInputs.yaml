@@ -1,0 +1,13 @@
+---
+DialInformation:
+  DialNames: [
+    AbsoluteEResFD_numu, EMEScaleFD_numu, EMEScaleInvSqrtFD_numu, EMEScaleSqrtFD_numu, HadEScaleFD_numu, HadEScaleInvSqrtFD_numu, HadEScaleSqrtFD_numu, MuEScaleFD_numu, MuEScaleInvSqrtFD_numu, MuEScaleSqrtFD_numu, NEScaleFD_numu, NEScaleInvSqrtFD_numu, NEScaleSqrtFD_numu, TotalEScaleFD_numu, TotalEScaleInvSqrtFD_numu, TotalEScaleSqrtFD_numu, AbsoluteEResFD_nue, EMEScaleFD_nue, EMEScaleInvSqrtFD_nue, EMEScaleSqrtFD_nue, HadEScaleFD_nue, HadEScaleInvSqrtFD_nue, HadEScaleSqrtFD_nue, MuEScaleFD_nue, MuEScaleInvSqrtFD_nue, MuEScaleSqrtFD_nue, NEScaleFD_nue, NEScaleInvSqrtFD_nue, NEScaleSqrtFD_nue, TotalEScaleFD_nue, TotalEScaleInvSqrtFD_nue, TotalEScaleSqrtFD_nue
+  ]
+
+  SampleNames: [
+    FHC numu, FHC nue, RHC numu, RHC nue
+  ]
+
+  Variations: [-3, -2, -1, 0, 1, 2, 3]
+
+  Nbins: 17

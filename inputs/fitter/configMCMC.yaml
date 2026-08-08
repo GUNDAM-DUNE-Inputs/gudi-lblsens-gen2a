@@ -1,0 +1,75 @@
+# Configure the MCMC fitter.  Add to main config file with 
+#
+# fitterEngineConfig:
+#   minimizerConfig: "./inputs/fitter/configMCMC.yaml"
+#
+# Choose the mcmc engine with command line option
+# "-O /fitterEngineConfig/minimizerConfig=./inputs/fitter/configMCMC.yaml"
+#
+
+
+type: "AdaptiveMCMC"
+
+algorithm: metropolis
+proposal: adaptive
+
+# Whether MCMC chain starts from a random point or from the prior.
+randomStart: true
+
+# Run a small number of burn-in steps to randomize the chain starting
+# position. The burn-in steps will not be run if the state is restored
+# while extending a chain.  This will also choose an appropriate step
+# size.
+
+burninCycles: 2
+burninSteps: 10000
+saveBurnin: false
+
+# Example: To run 1M steps choose 100 cylces times 10000 steps
+cycles: 50
+steps: 10000
+
+##########################################
+#Configure the adaptive step
+##########################################
+
+# override from command line with
+# "-O /fitterEngineConfig/mcmcConfig/adaptiveRestore=<filename>"
+
+adaptiveRestore: none
+
+# override from command line with
+# "-O /fitterEngineConfig/mcmcConfig/adaptiveCovFile=<filename>"
+
+adaptiveCovFile: none
+
+# Configure the state during burn-in
+
+burninCovWindow: 1000000
+burninCovDeweight: 0.0
+burninWindow: 1000
+burninFreezeAfter: 1000000
+burningResets: 0
+
+# Set the number of trials that a covariance read an input trial will
+# count for.  This should be around N^2 (N is the number of dimensions).
+
+adaptiveCovTrials: 500000
+
+# Set the number of cycles to run before "freezing" the
+# covariance. This should be set to zero so that the proposal remains
+# constant.
+
+adaptiveFreezeAfter: 0
+
+# Set the number of points to include in the covariance.
+
+adaptiveCovWindow: 1000000
+
+# Do not deweight the existing covariance
+
+adaptiveCovDeweighting: 0.0
+
+# Set the number of steps used to estimate the acceptance.
+
+adaptiveWindow: 1000

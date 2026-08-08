@@ -1,0 +1,20 @@
+# ReactionCode Dictionary
+# ***************************
+# Struct to describe the SIMB interaction modes which are found inside the FD CAF files
+# Note: this modes can be found in https://nusoft.fnal.gov/larsoft/doxsvn/html/namespacesimb.html
+# MaCh3: https://github.com/DUNE/MaCh3_DUNE/blob/7c5efeb622869084d6775252242bba75ebc24def/samplePDFDUNE/StructsDUNE.h#L682
+- { value: -1, title: "UNDEFINED", colorRoot: 1 } # kBlack
+- { value: 0, title: "QE", colorRoot: 861 }
+- { value: 1, title: "Resonant", colorRoot: 807 }
+- { value: 2, title: "DIS", colorRoot: 418 }
+- { value: 3, title: "Coherent", colorRoot: 617 }
+- { value: 4, title: "Coherent Elastic", colorRoot: 433 }
+- { value: 5, title: "Electron Scattering", colorRoot: 402 }
+- { value: 6, title: "Inverse Muon Decay Annihliation", colorRoot: 633 }
+- { value: 7, title: "Inverse Beta Decay", colorRoot: 593 }
+- { value: 8, title: "Glasgow Resonance", colorRoot: 825 }
+- { value: 9, title: "Atmospheric Muon Nu Gamma", colorRoot: 881 }
+- { value: 10, title: "MEC aka 2p2h", colorRoot: 922 }
+- { value: 11, title: "Diffractive", colorRoot: 843 }
+- { value: 12, title: "kEM", colorRoot: 907 }
+- { value: 13, title: "kWeakMix", colorRoot: 797 }

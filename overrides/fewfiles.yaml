@@ -1,0 +1,23 @@
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+
+    dataSetList: 
+
+     - name: "FD"
+     
+       model:
+
+        tree: "event_tree"
+
+        # MC files
+        filePathList:
+
+          - "${OA_INPUTS}/FD_FHC_ger_nue_x_nue_nueselec_gudi.root"
+          - "${OA_INPUTS}/FD_FHC_ger_nue_x_nue_numuselec_gudi.root"
+          - "${OA_INPUTS}/FD_FHC_ger_nue_x_numu_nueselec_gudi.root"
+          - "${OA_INPUTS}/FD_FHC_ger_nue_x_numu_numuselec_gudi.root"
+          - "${OA_INPUTS}/FD_FHC_ger_nue_x_nutau_nueselec_gudi.root"
+          - "${OA_INPUTS}/FD_FHC_ger_nue_x_nutau_numuselec_gudi.root"
+          - "${OA_INPUTS}/FD_RHC_ger_nue_x_nue_nueselec_gudi.root"
+          - "${OA_INPUTS}/FD_RHC_ger_nue_x_nue_numuselec_gudi.root"
+          - "${OA_INPUTS}/FD_RHC_ger_nue_x_numu_nueselec_gudi.root"

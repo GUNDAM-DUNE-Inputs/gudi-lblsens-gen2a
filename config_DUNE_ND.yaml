@@ -1,0 +1,44 @@
+#########################################
+# Configuration for DUNE TDR far detector LBL oscillation sensitivity
+#########################################
+
+outputFolder: "./outputs/ND"
+minGundamVersion: 1.9.0
+
+fitterEngineConfig:
+
+  # Throw (correlated) parameters before making the fit This helps Minuit
+  # converge while doing an Asimov fit when too many fit parameters are
+  # involved Pushing the parameter away from the minimum allow Minuit to
+  # better scan the area.  This can also be done from the command line
+  # using --kick-mc
+  throwMcBeforeFit: false
+
+  # Some fit parameter may have huge prior, no need to push everybody at
+  # 1sigma in average ThrowPar = ParPrior + throwMcBeforeFitGain *
+  # randomGaus(0, 1sigma)
+  throwMcBeforeFitGain: 0.1
+
+  # Generate figures of the samples prefit/postfit using plotGeneratorConfig
+  generateSamplePlots: true
+  savePostfitEventTrees: true
+
+  # sigma variations
+  enableParamVariations: false
+  paramVariationsSigmas: [ -3, -1, 0, 1, 3 ]
+
+  minimizerConfig: "./inputs/fitter/configMinimizer.yaml"
+
+  parameterScannerConfig:             "./inputs/output/configScan.yaml"
+
+  likelihoodInterfaceConfig:
+    enableStatThrowInToys: false
+    enableEventMcThrow: false
+    gaussStatThrowInToys: false
+    dataSetList:            "./inputs/datasets/configDatasets_ND.yaml"
+    propagatorConfig:       "./inputs/propagator/configPropagator_ND.yaml"
+    #plotGeneratorConfig:    "./inputs/output/configPlotGenerator.yaml"
+    jointProbabilityConfig:
+      type: BarlowLLH_BANFF_OA2021
+      allowZeroMcWhenZeroData: true
+      BBNoUpdateWeights: true

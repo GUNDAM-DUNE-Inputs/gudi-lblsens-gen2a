@@ -1,0 +1,13 @@
+---
+systematicsInfo:
+  Dials: [
+    TotalEScaleFD_nue, TotalEScaleSqrtFD_nue, TotalEScaleInvSqrtFD_nue, HadEScaleFD_nue, HadEScaleSqrtFD_nue, HadEScaleInvSqrtFD_nue, MuEScaleFD_nue, MuEScaleSqrtFD_nue, MuEScaleInvSqrtFD_nue, NEScaleFD_nue, NEScaleSqrtFD_nue, NEScaleInvSqrtFD_nue, EMEScaleFD_nue, EMEScaleSqrtFD_nue, EMEScaleInvSqrtFD_nue, AbsoluteEResFD_nue
+  ]
+
+  Samples: [
+    FHC numu, FHC nue, RHC numu, RHC nue
+  ]
+
+  Variations: [-3, -2, -1, 0, 1, 2, 3]
+
+  binEdges: [0, 0.5, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 5.0, 6.0, 10.0]

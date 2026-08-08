@@ -1,0 +1,18 @@
+# Parameter injection
+
+# MC if not
+# or cmd line option?
+injectOnToyData: true
+
+parameterSetList:
+
+  - name: "Oscillation Parameters"
+    parameterValues:
+      - { name: "PMNS_SIN_SQUARED_12", value: 0.310 }
+      - { name: "PMNS_SIN_SQUARED_13", value: 0.0224 }
+      - { name: "PMNS_SIN_SQUARED_23", value: 0.582 }
+      - { name: "PMNS_DELTA_MASS_SQUARED_21", value: 7.39E-5 }
+      - { name: "PMNS_DELTA_MASS_SQUARED_32", value: 0.002525 }
+      - { name: "PMNS_DELTA_CP", value: -2.498 }
+
+# end

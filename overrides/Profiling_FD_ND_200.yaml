@@ -1,0 +1,1173 @@
+## Apply oscillation parameter values:  Use with
+#
+# --override-files ${CONFIG_DIR}/overrides/MaCh3ComparisonFixedHeight.yaml
+#
+# Sets the oscillation weight calculation grid to compare with MaCh3 with
+# a fixed production height. The binning is in the file name
+# ./inputs/parameters/oscProb/ProdHeightDist_E300_cZ300_N1_hbin2.5.root"
+
+
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+
+    dataSetList:
+      - name: "FD"
+        model:
+          nominalWeightFormula:
+            - "(isCC!=0||isNC!=0)? POTScaledWeight : 0.0"
+            - "BeRPA_A_cvwgt * 0.59523810"
+
+    propagatorConfig:
+
+      parametersManagerConfig:
+        parameterSetList:
+          - name: "Oscillation Parameters"        
+            isEnabled: true
+
+            parameterDefinitions:
+              - name: "PMNS_SIN_SQUARED_12"
+                isFrozen: false
+                #priorValue: 0.3073        # Nu-FIT 4.0 with SK atm: 0.303
+                #parameterStepSize: 0.01
+                #physicalLimits: [ 0.0, 1.0]
+                #parameterLimits: [ 0.0, 1.0]    
+
+              - name: "PMNS_SIN_SQUARED_13"
+                isFrozen: false
+                #priorValue: 0.0223      # Nu-FIT 4.0 with SK atm: 0.02225
+                #parameterStepSize: 0.0007
+                #physicalLimits: [ 0.0, 1.0]
+                #parameterLimits: [ 0.0, 1.0 ]        
+
+              - name: "PMNS_SIN_SQUARED_23"
+                isFrozen: false
+                #priorValue: 0.5799        # Nu-FIT 4.0 with SK atm: 0.451
+                #parameterStepSize: 0.04
+                #parameterLimits: [ 0.0, 1.0 ]
+                #physicalLimits: [ 0.0, 1.0]
+                
+              - name: "PMNS_DELTA_MASS_SQUARED_21"
+                isFrozen: false
+                #priorValue: 7.39E-5      # Nu-FIT 4.0 with SK atm: 7.41E-5
+                #parameterStepSize: 2.0e-6
+                
+              - name: "PMNS_DELTA_MASS_SQUARED_32"
+                isFrozen: false
+                #priorValue: 0.002451      # Nu-FIT 4.0 with SK atm: 2.51E-3
+                #parameterStepSize: 2.6E-4
+                #parameterLimits: [0.00245, 0.00255]
+
+              - name: "PMNS_DELTA_CP"
+                isFrozen: false
+                #priorValue: -2.53  # Nu-FIT 4.0 with SK atm: -2.233
+                #parameterStepSize: 1.0
+                # PDG convention is [0.0, 6.28318530718] but DUNE uses this.
+                #cyclicRange: [ -3.14159265359, 3.14159265359 ]
+                #parameterLimits: [ -3.14159265359, 3.14159265359]
+
+              - name: "PMNS_SIGN_MASS_SQUARED_32"
+                isEnabled: true
+                priorValue: 0.5
+                isFixed: true                
+
+          
+          - name: "Flux Systematics"
+            isEnabled: false
+         #   parameterDefinitionFilePath: "./inputs/parameters/flux/fd_flux_covariance_DUNE_systs_2023.root"
+         #   covarianceMatrix: xsec_cov
+
+          - name: "Cross-Section Systematics"
+            isEnabled: false
+          #  parameterDefinitionFilePath: "./inputs/parameters/xsec/fd_xsec_covariance_only_DUNE_systs_2023.root"
+          #  covarianceMatrixTMatrixD: xsec_cov                 
+
+          - name: "Flux Cross-Section Systematics"
+            isEnabled: true
+            enableThrowToyParameters: false
+            parameterDefinitionFilePath: "./inputs/parameters/xsec/flux_xsec_covariance_DUNE_inclNDcontr_200MW.root"
+            covarianceMatrixTMatrixD: xsec_cov
+            parameterNameList: xsec_param_names
+            parameterPriorValueList: xsec_param_prior
+            parameterLowerBoundsList: xsec_param_lb
+            parameterUpperBoundsList: xsec_param_ub
+            printDialSetSummary: true          
+
+            parameterDefinitions:
+
+                - name: "MAQE"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "MaCCQE_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "VecFFCCQEshape"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "VecFFCCQEshape_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "MaNCEL"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "MaNCEL_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "EtaNCEL"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "EtaNCEL_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "MaCCRES"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "MaCCRES_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "MvCCRES"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "MvCCRES_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "MaNCRES"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "MaNCRES_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "MvNCRES"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "MvNCRES_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "RDecBR1gamma"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "RDecBR1gamma_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "RDecBR1eta"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "RDecBR1eta_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "ThetaDelta2NPi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "Theta_Delta2Npi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "AhtBY"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "AhtBY_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "BhtBY"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "BhtBY_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "CV1uBY"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "CV1uBY_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "CV2uBY"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "CV2uBY_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FormZone"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FormZone_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "MFP_pi"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "MFP_pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrCEx_pi"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrCEx_pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrElas_pi"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrElas_pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrInel_pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrInel_pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrAbs_pi"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrAbs_pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrPiProd_pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrPiProd_pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "MFP_N"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "MFP_N_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrCEx_N"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrCEx_N_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrElas_N"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrElas_N_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrInel_N"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrInel_N_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrAbs_N"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrAbs_N_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FrPiProd_N"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FrPiProd_N_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "CCQEPauliSupViaKF"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "CCQEPauliSupViaKF_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "Mnv2p2hGaussEnhancement"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "Mnv2p2hGaussEnhancement_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "MKSPP_ReWeight"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "MKSPP_ReWeight_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "E2p2h_A_nu"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "E2p2h_A_nu_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "E2p2h_B_nu"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "E2p2h_B_nu_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "E2p2h_A_nubar"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "E2p2h_A_nubar_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "E2p2h_B_nubar"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "E2p2h_B_nubar_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_n_CC_2pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_n_CC_2Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_n_CC_3pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_n_CC_3Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_p_CC_2pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_p_CC_2Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_p_CC_3pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_p_CC_3Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_np_CC_1pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_np_CC_1Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_n_NC_1pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_n_NC_1Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_n_NC_2pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_n_NC_2Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_n_NC_3pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_n_NC_3Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_p_NC_1pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_p_NC_1Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_p_NC_2pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_p_NC_2Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nu_p_NC_3pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nu_p_NC_3Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_n_CC_1pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_n_CC_1Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_n_CC_2pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_n_CC_2Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_n_CC_3pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_n_CC_3Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_p_CC_1pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_p_CC_1Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_p_CC_2pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_p_CC_2Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_p_CC_3pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_p_CC_3Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_n_NC_1pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_n_NC_1Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_n_NC_2pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_n_NC_2Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_n_NC_3pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_n_NC_3Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_p_NC_1pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_p_NC_1Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_p_NC_2pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_p_NC_2Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "NR_nubar_p_NC_3pi"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "NR_nubar_p_NC_3Pi_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "BeRPA_A"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "BeRPA_A_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "BeRPA_B"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "BeRPA_B_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "BeRPA_D"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "BeRPA_D_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "BeRPA_E"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "BeRPA_E_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "EbFSLepMomShift"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "EbFSLepMomShift_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "C12ToAr40_2p2hScaling_nu"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "C12ToAr40_2p2hScaling_nu_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "C12ToAr40_2p2hScaling_nubar"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "C12ToAr40_2p2hScaling_nubar_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "nuenuebar_xsec_ratio"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "nuenuebar_xsec_ratio_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "nuemumu_xsec_ratio"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "nuenumu_xsec_ratio_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "SPPLowQ2Suppression"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "SPPLowQ2Suppression_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "FSILikeEAvailSmearing"
+                  isEnabled: false
+                  dialSetDefinitions:
+                    - dialType: Spline
+                      options: catmull-rom, monotonic
+                      applyOnDataSets: [ "FD" ]
+                      treeExpression: "FSILikeEAvailSmearing_TGraph"
+                      minDialResponse: 0
+                      maxDialResponse: 100
+                      allowDialExtrapolation: true
+
+                - name: "b_104"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 0.0 && [Ev] < 0.5"
+                - name: "b_105"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 0.5 && [Ev] < 1.0"
+                - name: "b_106"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 1.0 && [Ev] < 1.5"
+                - name: "b_107"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 1.5 && [Ev] < 2.0"
+                - name: "b_108"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 2.0 && [Ev] < 2.5"
+                - name: "b_109"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 2.5 && [Ev] < 3.0"
+                - name: "b_110"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 3.0 && [Ev] < 3.5"
+                - name: "b_111"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 3.5 && [Ev] < 4.0"
+                - name: "b_112"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 4.0 && [Ev] < 4.5"
+                - name: "b_113"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 4.5 && [Ev] < 5.0"
+                - name: "b_114"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 5.0 && [Ev] < 5.5"
+                - name: "b_115"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 5.5 && [Ev] < 6.0"
+                - name: "b_116"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 6.0 && [Ev] < 7.0"
+                - name: "b_117"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 7.0 && [Ev] < 8.0"
+                - name: "b_118"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 8.0 && [Ev] < 12.0"
+                - name: "b_119"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 12.0 && [Ev] < 16.0"
+                - name: "b_120"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 16.0 && [Ev] < 20.0"
+                - name: "b_121"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 20.0 && [Ev] < 40.0"
+                - name: "b_122"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 14 && [Ev] >= 40.0 && [Ev] <= 100.0"
+                - name: "b_123"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 0.0 && [Ev] < 0.5"
+                - name: "b_124"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 0.5 && [Ev] < 1.0"
+                - name: "b_125"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 1.0 && [Ev] < 1.5"
+                - name: "b_126"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 1.5 && [Ev] < 2.0"
+                - name: "b_127"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 2.0 && [Ev] < 2.5"
+                - name: "b_128"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 2.5 && [Ev] < 3.0"
+                - name: "b_129"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 3.0 && [Ev] < 3.5"
+                - name: "b_130"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 3.5 && [Ev] < 4.0"
+                - name: "b_131"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 4.0 && [Ev] < 4.5"
+                - name: "b_132"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 4.5 && [Ev] < 5.0"
+                - name: "b_133"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 5.0 && [Ev] < 5.5"
+                - name: "b_134"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 5.5 && [Ev] < 6.0"
+                - name: "b_135"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 6.0 && [Ev] < 7.0"
+                - name: "b_136"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 7.0 && [Ev] < 8.0"
+                - name: "b_137"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 8.0 && [Ev] < 12.0"
+                - name: "b_138"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 12.0 && [Ev] < 16.0"
+                - name: "b_139"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 16.0 && [Ev] < 20.0"
+                - name: "b_140"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 20.0 && [Ev] < 40.0"
+                - name: "b_141"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -14 && [Ev] >= 40.0 && [Ev] <= 100.0"
+                - name: "b_142"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 12 && [Ev] >= 0.0 && [Ev] < 2.0"
+                - name: "b_143"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 12 && [Ev] >= 2.0 && [Ev] < 4.0"
+                - name: "b_144"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 12 && [Ev] >= 4.0 && [Ev] < 6.0"
+                - name: "b_145"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 12 && [Ev] >= 6.0 && [Ev] < 8.0"
+                - name: "b_146"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 12 && [Ev] >= 8.0 && [Ev] < 10.0"
+                - name: "b_147"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 12 && [Ev] >= 10.0 && [Ev] < 20.0"
+                - name: "b_148"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == 12 && [Ev] >= 20.0 && [Ev] <= 100.0"
+                - name: "b_149"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -12 && [Ev] >= 0.0 && [Ev] < 2.0"
+                - name: "b_150"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -12 && [Ev] >= 2.0 && [Ev] < 4.0"
+                - name: "b_151"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -12 && [Ev] >= 4.0 && [Ev] < 6.0"
+                - name: "b_152"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -12 && [Ev] >= 6.0 && [Ev] < 8.0"
+                - name: "b_153"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -12 && [Ev] >= 8.0 && [Ev] < 10.0"
+                - name: "b_154"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -12 && [Ev] >= 10.0 && [Ev] < 20.0"
+                - name: "b_155"
+                  isEnabled: true
+                  dialSetDefinitions:
+                    - dialType: Normalization
+                      applyOnDataSets: [ "FD" ]
+                      applyCondition: "[isRHC] == 0 && [nuPDG] == -12 && [Ev] >= 20.0 && [Ev] <= 100.0"
+
+
+
+
+
+                

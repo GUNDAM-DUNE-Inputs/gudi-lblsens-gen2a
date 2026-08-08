@@ -1,0 +1,12 @@
+# Only use events that are from the non-swap files.  That means that the
+# flux and interaction neutrino types are the same.
+
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+    dataSetList:
+      - name: "FD"
+        mc:
+          nominalWeightFormula:
+            # Only use the non-swap events.
+            - "(isCC==1||isNC==1)&&(nuPDG==nuPDGunosc) ? POTScaledWeight: 0.0"
+          

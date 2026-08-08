@@ -1,0 +1,23 @@
+## Apply oscillation parameter values:  Use with
+#
+# --override-files ${CONFIG_DIR}/overrides/nullOscillationParameters.yaml
+#
+# This sets the oscillation parameters to "null" oscillations by setting all
+# of the mixing angles to zero.
+
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+    propagatorConfig:
+      parametersManagerConfig:
+        parameterSetList:
+          - name: "Oscillation Parameters"
+
+            parameterDefinitions:
+              - name: "PMNS_SIN_SQUARED_12"
+                priorValue: 0.0
+
+              - name: "PMNS_SIN_SQUARED_13"
+                priorValue: 0.0
+
+              - name: "PMNS_SIN_SQUARED_23"
+                priorValue: 0.0

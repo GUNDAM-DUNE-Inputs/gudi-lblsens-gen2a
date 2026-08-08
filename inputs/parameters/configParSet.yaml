@@ -1,0 +1,1756 @@
+####################################################################
+# Oscillation Parameters
+####################################################################
+
+- name: "Oscillation Parameters"
+  isEnabled: true
+  enableThrowToyParameters: false
+  nominalStepSize: 1.0
+  parameterDefinitionFilePath: "./inputs/parameters/oscProb/oscCovTDR_NO.root"
+  covarianceMatrix: osc_param_cov
+  parameterNameList: osc_param_names
+  parameterPriorValueList: osc_param_priors
+
+  parameterDefinitions:
+    - name: "PMNS_SIN_SQUARED_12"
+      isEnabled: true
+      priorValue: 0.310 # PDG quotes 0.307
+      parameterStepSize: 0.01
+      #priorType: Flat
+      physicalLimits: [ 0.0, 1.0]
+      parameterLimits: [ 0.0, 1.0]      #parameterLimits: [ 0.25, 0.37 ]
+
+    - name: "PMNS_SIN_SQUARED_13"
+      isEnabled: true
+      priorValue: 0.0224 # PDG quotes 0.0219
+      parameterStepSize: 0.0007
+      #priorType: Flat
+      physicalLimits: [ 0.0, 1.0]
+      parameterLimits: [ 0.0, 1.0 ]
+      #parameterLimits: [ 0.018, 0.034 ]
+
+    - name: "PMNS_SIN_SQUARED_23"
+      isEnabled: true
+      priorValue: 0.582   # PDG quotes 0.558
+      priorType: Flat
+      parameterStepSize: 0.04
+      parameterLimits: [ 0.0, 1.0 ]      
+      #parameterLimits: [ 0.42, 0.62 ]
+
+    - name: "PMNS_DELTA_MASS_SQUARED_21"
+      isEnabled: true
+      priorValue: 7.39E-5
+      #priorType: Flat
+      parameterStepSize: 2.0e-6
+      #parameterLimits: [ 6.96E-5, 8.10E-5 ]    # 3 sigma around PDG
+      #parameterLimits: [ 4E-5, 12E-5 ]
+
+    - name: "PMNS_DELTA_MASS_SQUARED_32"
+      isEnabled: true
+      priorValue: 0.002525
+      priorType: Flat
+      parameterStepSize: 2.6E-4
+      #parameterLimits: [ 2.46e-3, 2.62e-3 ]
+
+    - name: "PMNS_DELTA_CP"
+      isEnabled: true
+      priorValue: -2.498  # 1.19 pi
+      priorType: Flat
+      parameterStepSize: 1.0
+      cyclicRange: [ -3.14159265359, 3.14159265359 ]
+
+    - name: "PMNS_SIGN_MASS_SQUARED_32"
+      isEnabled: true
+      isFixed: true
+      # PDG 2025 value: inverted
+      priorValue: 0.5           # DUNE prior from Nu-Fit 5.2 w/ SK atm
+      priorType: Flat
+      parameterStepSize: 0.5
+      parameterLimits: [ -1.0, 1.0 ]
+
+  dialSetDefinitions:
+
+  #######################################################################3
+  #
+  # MUON TO ELECTRON, MUON, TAU
+  #
+  #######################################################################
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==14 && [nuPDG]==12 && ([file_idx]==15 || [file_idx]==16 || [file_idx]==39 || [file_idx]==40)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu to nue NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR muon"              # muon neutrino flux
+          - "INTERACTION_FLAVOR electron"   # electron neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==14 && [nuPDG]==14 && ([file_idx]==7 || [file_idx]==8 || [file_idx]==31 || [file_idx]==32)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu to numu NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR muon"          # muon neutrino flux
+          - "INTERACTION_FLAVOR muon"   # muon neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==14 && [nuPDG]==16 && ([file_idx]==23 || [file_idx]==24 || [file_idx]==47 || [file_idx]==48)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu to nutau NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR muon"          # muon neutrino flux
+          - "INTERACTION_FLAVOR tau"    # tau neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # ELECTRON TO ELECTRON, MUON, TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==12 && [nuPDG]==12 && ([file_idx]==3 || [file_idx]==4 || [file_idx]==27 || [file_idx]==28)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue to nue NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR electron"          # electron neutrino flux
+          - "INTERACTION_FLAVOR electron"   # electron neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==12 && [nuPDG]==14 && ([file_idx]==19 || [file_idx]==20 || [file_idx]==43 || [file_idx]==44)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue to numu NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR electron"      # electron neutrino flux
+          - "INTERACTION_FLAVOR muon"   # muon neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==12 && [nuPDG]==16 && ([file_idx]==11 || [file_idx]==12 || [file_idx]==35 || [file_idx]==36)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue to nutau NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR electron"      # electron neutrino flux
+          - "INTERACTION_FLAVOR tau"    # tau neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # TAU TO ELECTRON, MUON, TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==16 && [nuPDG]==12"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau to nue NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR tau"             # tau neutrino flux
+          - "INTERACTION_FLAVOR electron" # electron neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==16 && [nuPDG]==14"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau to numu NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR tau"      # tau neutrino flux
+          - "INTERACTION_FLAVOR muon"   # muon neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==16 && [nuPDG]==16"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau to nutau NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR tau"        # tau neutrino flux
+          - "INTERACTION_FLAVOR tau" # tau neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # ANTI-MUON TO ANTI-ELECTRON, ANTI-MUON, ANTI-TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-14 && [nuPDG]==-12 && ([file_idx]==13 || [file_idx]==14 || [file_idx]==37 || [file_idx]==38)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu-bar to nue-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-muon"              # muon anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-electron"   # electron anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-14 && [nuPDG]==-14 && ([file_idx]==5 || [file_idx]==6 || [file_idx]==29 || [file_idx]==30)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu-bar to numu-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-muon"          # muon anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-muon"   # muon anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-14 && [nuPDG]==-16 && ([file_idx]==21 || [file_idx]==22 || [file_idx]==45 || [file_idx]==46)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu-bar to nutau-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-muon"          # muon anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-tau"    # tau anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # ANTI-ELECTRON TO ANTI-ELECTRON, ANTI-MUON, ANTI-TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-12 && [nuPDG]==-12 && ([file_idx]==1 || [file_idx]==2 || [file_idx]==25 || [file_idx]==26)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue-bar to nue-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-electron"          # electron anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-electron"   # electron anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-12 && [nuPDG]==-14 && ([file_idx]==17 || [file_idx]==18 || [file_idx]==41 || [file_idx]==42)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue-bar to numu-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-electron"      # electron anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-muon"   # muon anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-12 && [nuPDG]==-16 && ([file_idx]==9 || [file_idx]==10 || [file_idx]==33 || [file_idx]==34)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue-bar to nutau-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-electron"      # electron anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-tau"    # tau anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # ANTI-TAU TO ANTI-ELECTRON, ANTI-MUON, ANTI-TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-16 && [nuPDG]==-12"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau-bar to nue-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-tau"             # tau neutrino flux
+          - "INTERACTION_FLAVOR anti-electron" # electron neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-16 && [nuPDG]==-14"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau-bar to numu-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-tau"      # tau neutrino flux
+          - "INTERACTION_FLAVOR anti-muon"   # muon neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-16 && [nuPDG]==-16"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau-bar to nutau-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-tau"        # tau neutrino flux
+          - "INTERACTION_FLAVOR anti-tau" # tau neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+########################################################################
+# Flux Systematics:
+# Each parameter represents a bin in true neutrino energy / flavor / FHC-RHC
+########################################################################
+- name: "Flux Systematics"
+  isEnabled: true
+  enableThrowToyParameters: false
+  # The flux covariance is very close to singular.  Handle by finding
+  # the eigen vectors and eliminating any vectors with an eigenvalue
+  # that is effectively zero.  The small eigen values have an absolute
+  # value of about 1E-14.
+  enableEigenDecomp: true
+  eigenValueThreshold: 1E-12
+  useEigenDecompForThrows: true
+
+  printDialSetSummary: true
+
+  parameterDefinitionFilePath: "./inputs/parameters/flux/flux_covariance_DUNE_systs_2023.root"
+  covarianceMatrix: xsec_cov
+  parameterPriorValueList: xsec_param_prior
+
+  dialSetDefinitions:
+    - applyOnDataSets: ["*"]
+      parametersBinningPath: "./inputs/parameters/flux/fluxBinning_DUNE.txt"
+      printDialSummary: true
+
+#########################################################################
+# Cross-Section systematics
+#########################################################################
+
+- name: "Cross-Section Systematics"
+  isEnabled: true
+  enableThrowToyParameters: false
+  enablePca: true
+
+  #nominalStepSize: 0.1
+
+  # Decompose the cov matrix
+  parameterDefinitionFilePath: "./inputs/parameters/xsec/xsec_covariance_only_DUNE_systs_2023.root"
+  covarianceMatrixTMatrixD: xsec_cov
+  parameterNameList: xsec_param_names
+  parameterPriorValueList: xsec_param_prior
+  parameterLowerBoundsList: xsec_param_lb
+  parameterUpperBoundsList: xsec_param_ub
+  printDialSetSummary: true
+
+  # Toy throwing properties
+  #throwEnabledList: "xsec_param_throw"
+
+  parameterDefinitions:
+
+    - name: "MAQE"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MaCCQE_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "VecFFCCQEshape"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "VecFFCCQEshape_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MaNCEL"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MaNCEL_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "EtaNCEL"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "EtaNCEL_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MaCCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MaCCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MvCCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MvCCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MaNCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MaNCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MvNCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MvNCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "RDecBR1gamma"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "RDecBR1gamma_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "RDecBR1eta"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "RDecBR1eta_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ThetaDelta2NPi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "Theta_Delta2Npi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "AhtBY"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "AhtBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BhtBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BhtBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CV1uBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "CV1uBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CV2uBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "CV2uBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FormZone"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FormZone_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MFP_pi"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MFP_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrCEx_pi"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrCEx_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrElas_pi"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrElas_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrInel_pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrInel_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrAbs_pi"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrAbs_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrPiProd_pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrPiProd_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MFP_N"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MFP_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrCEx_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrCEx_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrElas_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrElas_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrInel_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrInel_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrAbs_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrAbs_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrPiProd_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrPiProd_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQEPauliSupViaKF"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "CCQEPauliSupViaKF_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "Mnv2p2hGaussEnhancement"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "Mnv2p2hGaussEnhancement_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MKSPP_ReWeight"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MKSPP_ReWeight_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "E2p2h_A_nu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "E2p2h_A_nu_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "E2p2h_B_nu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "E2p2h_B_nu_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "E2p2h_A_nubar"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "E2p2h_A_nubar_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "E2p2h_B_nubar"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "E2p2h_B_nubar_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_CC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_CC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_CC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_CC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_CC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_CC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_CC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_CC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_np_CC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_np_CC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_NC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_NC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_NC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_NC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_NC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_NC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_NC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_NC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_NC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_NC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_NC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_NC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_CC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_CC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_CC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_CC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_CC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_CC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_CC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_CC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_CC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_CC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_CC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_CC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_NC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_NC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_NC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_NC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_NC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_NC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_NC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_NC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_NC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_NC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_NC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_NC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BeRPA_A"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BeRPA_A_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BeRPA_B"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BeRPA_B_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BeRPA_D"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BeRPA_D_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BeRPA_E"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BeRPA_E_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "EbFSLepMomShift"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "EbFSLepMomShift_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "C12ToAr40_2p2hScaling_nu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "C12ToAr40_2p2hScaling_nu_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "C12ToAr40_2p2hScaling_nubar"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "C12ToAr40_2p2hScaling_nubar_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "nuenuebar_xsec_ratio"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "nuenuebar_xsec_ratio_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "nuemumu_xsec_ratio"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "nuenumu_xsec_ratio_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "SPPLowQ2Suppression"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "SPPLowQ2Suppression_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FSILikeEAvailSmearing"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FSILikeEAvailSmearing_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+#########################################################################
+# FD Detector systematics
+#########################################################################
+
+- name: "FD detector Systematics"
+  isEnabled: true
+  enableThrowToyParameters: false
+  enablePca: true
+
+  #nominalStepSize: 0.1
+
+  # Decompose the cov matrix
+  parameterDefinitionFilePath: "./inputs/parameters/detector/FDdetector_covariance_DUNE_systs.root"
+  covarianceMatrixTMatrixD: det_cov
+  parameterNameList: det_param_names
+  parameterPriorValueList: det_param_prior
+  parameterLowerBoundsList: det_param_lb
+  parameterUpperBoundsList: det_param_ub
+  printDialSetSummary: true
+
+  parameterDefinitions:
+
+    - name: "TotalEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleFD_numu_graph" # TObjArray
+
+#          applyCondition: "TMath::Abs([ReactionCode]) == 1 && (0.25 <= [Q2] && [Q2] < 0.5) && ( [TgtMat] == 12 || [TgtMat] == 16 ) && ( TMath::Abs([NeutrinoCode]) == 14 || TMath::Abs([NeutrinoCode]) == 12 )"
+
+    - name: "TotalEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "TotalEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "HadEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleFD_numu_graph" # TObjArray
+
+    - name: "HadEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "HadEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "MuEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleFD_numu_graph" # TObjArray
+
+    - name: "MuEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "MuEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "NEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleFD_numu_graph" # TObjArray
+
+    - name: "NEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "NEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "EMEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleFD_numu_graph" # TObjArray
+
+    - name: "EMEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "EMEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "AbsoluteEResFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "AbsoluteEResFD_numu_graph" # TObjArray
+
+    - name: "NumuFVFD"
+      isEnabled: true
+      priorValue: 1
+      dialSetDefinitions:
+        - dialType: Normalization
+          applyOnDataSets: [ "FD" ]
+
+    - name: "TotalEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleFD_nue_graph" # TObjArray
+
+    - name: "TotalEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "TotalEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "HadEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleFD_nue_graph" # TObjArray
+
+    - name: "HadEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "HadEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "MuEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleFD_nue_graph" # TObjArray
+
+    - name: "MuEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "MuEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "NEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleFD_nue_graph" # TObjArray
+
+    - name: "NEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "NEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "EMEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleFD_nue_graph" # TObjArray
+
+    - name: "EMEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "EMEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "AbsoluteEResFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "AbsoluteEResFD_nue_graph" # TObjArray
+
+    - name: "NueFVFD"
+      isEnabled: true
+      priorValue: 1
+      dialSetDefinitions:
+        - dialType: Normalization
+          applyOnDataSets: [ "FD" ]
+
+# FDS
+#- name: FDS weight
+#  parameterDefinitions:
+#    - name: "my FDS weight"
+##      dialSetDefinitions:
+#        - dialType: Graph
+#          applyOnDataSets: [ "ND280" ]
+#          treeExpression: "PionFSI_AbsProbGraph"

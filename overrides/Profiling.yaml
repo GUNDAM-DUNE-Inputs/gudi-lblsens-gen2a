@@ -1,0 +1,30 @@
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+    propagatorConfig:
+      parametersManagerConfig:
+        parameterSetList:
+          - name: "Oscillation Parameters"
+            isEnabled: true
+
+            parameterDefinitions:
+              - name: "PMNS_SIN_SQUARED_12"
+                isFrozen: false
+
+              - name: "PMNS_SIN_SQUARED_13"
+                isFrozen: false  
+
+              - name: "PMNS_SIN_SQUARED_23"
+                isFrozen: false
+                
+              - name: "PMNS_DELTA_MASS_SQUARED_21"
+                isFrozen: false
+                
+              - name: "PMNS_DELTA_MASS_SQUARED_32"
+                isFrozen: false
+
+              - name: "PMNS_DELTA_CP"
+                isFrozen: false
+
+              - name: "PMNS_SIGN_MASS_SQUARED_32"
+                isEnabled: true
+                isFixed: true    

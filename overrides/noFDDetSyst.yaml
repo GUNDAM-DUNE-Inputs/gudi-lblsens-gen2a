@@ -1,0 +1,8 @@
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+    propagatorConfig:
+      parametersManagerConfig:
+        parameterSetList:
+          - name: "FD detector Systematics"
+            isEnabled: false
+          

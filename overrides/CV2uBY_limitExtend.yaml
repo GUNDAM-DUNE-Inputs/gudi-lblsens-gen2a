@@ -1,0 +1,10 @@
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+    propagatorConfig:
+      parametersManagerConfig:
+        parameterSetList:
+          - name: "Cross-Section Systematics"
+            parameterDefinitions:
+              - name: "CV2uBY"
+                parameterLimits: [-10., 10.]
+          

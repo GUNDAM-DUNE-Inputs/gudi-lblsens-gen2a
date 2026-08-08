@@ -1,0 +1,24 @@
+
+# With how many points the range will be scanned
+# default: 100
+nbPoints: 100
+nbPointsLineScan: 200 # default nbPoints
+
+# Range in unit of sigma
+# default: -3, 3
+parameterSigmaRange: [-3,3]
+
+# When limits are defined, used them as the scan boundaries
+# If parameterSigmaRange is under the limit, then parameterSigmaRange is used.
+# default: true
+useParameterLimits: true
+
+# Breakdown scans
+varsConfig:
+  llh: true
+  llhPenalty: true
+  llhStat: true
+  llhStatPerSample: true
+  llhStatPerSamplePerBin: false
+  weightPerSample: false
+  weightPerSamplePerBin: false

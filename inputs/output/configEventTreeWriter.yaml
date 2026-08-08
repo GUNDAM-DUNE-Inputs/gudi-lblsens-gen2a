@@ -1,0 +1,14 @@
+# Parameters for the event dial writer
+
+dialWriterConfig:
+  # Disable with this toggle
+  isEnabled: false
+
+  dialList:
+    - name: "Cross-Section Systematics/MAQE" # used to generate branch name
+      parSetName: "Cross-Section Systematics"
+      parName: "MAQE"
+      nPoints: 100
+      parBounds: [-5, 5]
+
+

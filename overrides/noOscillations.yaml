@@ -1,0 +1,16 @@
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+    dataSetList:
+      - name: "FD"
+        model:
+          nominalWeightFormula:
+            # Only use the non-swap events.
+            - "(isCC==1||isNC==1)&&(nuPDG==nuPDGunosc) ? POTScaledWeight: 0.0"
+            - "BeRPA_A_cvwgt"
+
+    propagatorConfig:
+      parametersManagerConfig:
+        parameterSetList:
+          - name: "Oscillation Parameters"
+            isEnabled: false
+          

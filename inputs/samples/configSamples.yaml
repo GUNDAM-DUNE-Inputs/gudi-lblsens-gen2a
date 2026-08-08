@@ -1,0 +1,35 @@
+# Sample Configuration
+
+sampleList:
+
+  ##########################
+  # FHC
+  ##########################
+
+  - name: "FHC #nu_{#mu}_like CC "
+    isEnabled: true
+    binning: "./inputs/samples/binning_DUNE/dune_binning_recoE_numu.txt"
+    selectionCutStr: "vtx_x >= -310 && vtx_x <= 310 && vtx_y >= -550 && vtx_y <= 550 && vtx_z >= 50 && vtx_z <= 1244 && isRHC == 0 && cvnnumu >= 0.5 && cvnnumu <= 999 && sample_idx == 1" 
+    dataSets: [ "FD" ]
+
+  - name: "FHC #nu_{e}_like CC "
+    isEnabled: true
+    binning: "./inputs/samples/binning_DUNE/dune_binning_recoE_nue.txt"
+    selectionCutStr: "vtx_x >= -310 && vtx_x <= 310 && vtx_y >= -550 && vtx_y <= 550 && vtx_z >= 50 && vtx_z <= 1244 && isRHC == 0 && cvnnue >= 0.85 && cvnnue <= 999 && sample_idx == 2" 
+    dataSets: [ "FD" ]
+
+  ##########################
+  # RHC
+  ##########################
+
+  - name: "RHC #nu_{#mu}_like CC "
+    isEnabled: true
+    binning: "./inputs/samples/binning_DUNE/dune_binning_recoE_numu.txt"
+    selectionCutStr: "vtx_x >= -310 && vtx_x <= 310 && vtx_y >= -550 && vtx_y <= 550 && vtx_z >= 50 && vtx_z <= 1244 && isRHC == 1 && cvnnumu >= 0.5 && cvnnumu <= 999 && sample_idx == 3" 
+    dataSets: [ "FD" ]
+
+  - name: "RHC #nu_{e}_like CC "
+    isEnabled: true
+    binning: "./inputs/samples/binning_DUNE/dune_binning_recoE_nue.txt"
+    selectionCutStr: "vtx_x >= -310 && vtx_x <= 310 && vtx_y >= -550 && vtx_y <= 550 && vtx_z >= 50 && vtx_z <= 1244 && isRHC == 1 && cvnnue >= 0.85 && cvnnue <= 999 && sample_idx == 4" 
+    dataSets: [ "FD" ]
