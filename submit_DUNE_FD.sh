@@ -6,7 +6,7 @@
 #SBATCH --mem=50G
 
 # at seawulf
-source /gpfs/home/uyevarouskay/Work/env_gundam_v211_v1.sh #gundam version 2.1.1 (installed 2026-04-17)
+source /gpfs/projects/McGrewGroup/uyevarou/env_gundam_v211_v2.sh #gundam version v2.1.1f+7-g8324995c/main (installed 2026-05-14)
 
 # at SBU NN home cluster
 #source /home/isgould/work/gundam/install/setup.sh
@@ -20,14 +20,14 @@ export OA_INPUTS=/gpfs/projects/McGrewGroup/uyevarou/gudi-inputs/lbl/v5/
 # at SBU NN home cluster
 #export OA_INPUTS=/storage/shared/DUNE/OA-inputs/lbl/gudi-inputs/v5/
 
-export NUOSCILLATOR_ROOT_LIB=./gundamOscAnaTools/resources/TabulateNuOscillator/build-x86_64/
-source ${NUOSCILLATOR_ROOT_LIB}/bin/setup.NuOscillator.sh
+export NUOSCILLATOR_ROOT=/gpfs/projects/McGrewGroup/uyevarou/Work/atm/gudi-anoa-sen25a/gundamOscAnaTools/resources/TabulateNuOscillator/build-x86_64/
+source ${NUOSCILLATOR_ROOT}/bin/setup.NuOscillator.sh
 
 
 # if you request an Asimov fit, simply disregard the `-d` option, --scan is to build llh scans
-gundamFitter -a -c ./config_DUNE.yaml -t 8
+gundamFitter -a -d -c ./config_DUNE_FD.yaml -t 8
 # To run few files only consider override the parameters config:
-#gundamFitter -a -d -c ./config_DUNE.yaml -t 8 -of overrides/fewfiles.yaml
+#gundamFitter -a -d -c ./config_DUNE_FD.yaml -t 8 -of overrides/fewfiles.yaml
 # To disable  oscillation parameters consider override the parameters config:
-#gundamFitter -a -d --scan -c ./config_DUNE.yaml -of overrides/disableOscillationParameters.yaml -t 8
+#gundamFitter -a -d --scan -c ./config_DUNE_FD.yaml -of overrides/disableOscillationParameters.yaml -t 8
 

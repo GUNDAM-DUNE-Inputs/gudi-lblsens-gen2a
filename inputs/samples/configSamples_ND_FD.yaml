@@ -3,33 +3,50 @@
 sampleList:
 
   ##########################
-  # FHC
+  # ND FHC
   ##########################
 
-  - name: "FHC #nu_{#mu}_like CC "
+  - name: "ND FHC #nu_{#mu}_like CC "
     isEnabled: true
-    binning: "./inputs/samples/binning_DUNE/dune_binning_recoE_numu.txt"
+    binning: "./inputs/samples/binning_DUNE/ND_dune_binning_recoE_numu.txt"
+    selectionCutStr: "isFD == 0 && isCC == 1 && numu_CC"
+    dataSets: [ "ND" ]
+
+
+  - name: "ND FHC #nu_{e}_like CC "
+    isEnabled: true
+    binning: "./inputs/samples/binning_DUNE/ND_dune_binning_recoE_nue.txt"
+    selectionCutStr: "isFD == 0 && isCC == 1 && nue_CC"
+    dataSets: [ "ND" ]
+
+  ##########################
+  # FD FHC
+  ##########################
+
+  - name: "FD FHC #nu_{#mu}_like CC "
+    isEnabled: true
+    binning: "./inputs/samples/binning_DUNE/ND_dune_binning_recoE_numu.txt"
     selectionCutStr: "vtx_x >= -310 && vtx_x <= 310 && vtx_y >= -550 && vtx_y <= 550 && vtx_z >= 50 && vtx_z <= 1244 && isRHC == 0 && cvnnumu >= 0.5 && cvnnumu <= 999 && sample_idx == 1" 
     dataSets: [ "FD" ]
 
-  - name: "FHC #nu_{e}_like CC "
+  - name: "FD FHC #nu_{e}_like CC "
     isEnabled: true
-    binning: "./inputs/samples/binning_DUNE/dune_binning_recoE_nue.txt"
+    binning: "./inputs/samples/binning_DUNE/ND_dune_binning_recoE_nue.txt"
     selectionCutStr: "vtx_x >= -310 && vtx_x <= 310 && vtx_y >= -550 && vtx_y <= 550 && vtx_z >= 50 && vtx_z <= 1244 && isRHC == 0 && cvnnue >= 0.85 && cvnnue <= 999 && sample_idx == 2" 
     dataSets: [ "FD" ]
 
   ##########################
-  # RHC
+  # FD RHC
   ##########################
 
-  - name: "RHC #nu_{#mu}_like CC "
+  - name: "FD RHC #nu_{#mu}_like CC "
     isEnabled: true
-    binning: "./inputs/samples/binning_DUNE/dune_binning_recoE_numu.txt"
+    binning: "./inputs/samples/binning_DUNE/ND_dune_binning_recoE_numu.txt"
     selectionCutStr: "vtx_x >= -310 && vtx_x <= 310 && vtx_y >= -550 && vtx_y <= 550 && vtx_z >= 50 && vtx_z <= 1244 && isRHC == 1 && cvnnumu >= 0.5 && cvnnumu <= 999 && sample_idx == 3" 
     dataSets: [ "FD" ]
 
-  - name: "RHC #nu_{e}_like CC "
+  - name: "FD RHC #nu_{e}_like CC "
     isEnabled: true
-    binning: "./inputs/samples/binning_DUNE/dune_binning_recoE_nue.txt"
+    binning: "./inputs/samples/binning_DUNE/ND_dune_binning_recoE_nue.txt"
     selectionCutStr: "vtx_x >= -310 && vtx_x <= 310 && vtx_y >= -550 && vtx_y <= 550 && vtx_z >= 50 && vtx_z <= 1244 && isRHC == 1 && cvnnue >= 0.85 && cvnnue <= 999 && sample_idx == 4" 
     dataSets: [ "FD" ]

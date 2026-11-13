@@ -1,0 +1,226 @@
+# ------------------------
+# Dataset definitions
+# ------------------------
+
+- name: "ND"
+  isEnabled: true
+
+  showSelectedEventCount: true
+
+  # Debug Options
+  devSingleThreadEventSelection: false
+  devSingleThreadEventLoaderAndIndexer: false
+
+  #selectedDataEntry: "data-FD" # default
+  
+  model:
+
+    additionalLeavesStorage: 
+      - "mcMode"
+      - "isCC"
+      - "mcEnu"
+      - "recoEnu_nue"
+      - "recoEnu_numu"
+
+    # common tree name where the data are stored in each file
+    tree: "event_tree"
+
+    # MC files
+    filePathList:
+
+      #- "${ND_INPUTS}/ndlar_selected_flat_V0_GlobalAxes.root"    # V0 duneanal selection
+      - "${ND_INPUTS}/ndlar_selected_flat_V0p1_GlobalAxes.root"   # V0p1 duneanal selection
+
+    # base weight
+    nominalWeightFormula:
+      - "mcGenWeight * xsec_cvwgt"
+
+  data:
+
+    - name: "data-ND"
+    
+      tree: "event_tree"
+
+      # MC files
+      filePathList:
+        - "${ND_INPUTS}/ndlar_selected_flat_V0p1_GlobalAxes.root"   # V0p1 duneanal selection
+
+
+      # base weight
+      nominalWeightFormula:
+        - "mcGenWeight"
+
+- name: "FD"
+  isEnabled: true
+
+  showSelectedEventCount: true
+
+  # Debug Options
+  devSingleThreadEventSelection: false
+  devSingleThreadEventLoaderAndIndexer: false
+
+  selectedDataEntry: "data-FD" # default
+  
+  model:
+
+    # common tree name where the data are stored in each file
+    tree: "event_tree"
+
+    # MC files
+    filePathList:
+
+      - "${OA_INPUTS}/FD_FHC_ger_nue_x_nue_nueselec_gudi.root"
+      - "${OA_INPUTS}/FD_FHC_ger_nue_x_nue_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_nue_x_numu_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_nue_x_numu_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_nue_x_nutau_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_nue_x_nutau_numuselec_gudi.root"
+      - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nuebar_nueselec_gudi.root"
+      - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nuebar_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_nuebar_x_numubar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_nuebar_x_numubar_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nutaubar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nutaubar_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numu_x_nue_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numu_x_nue_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numu_x_numu_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numu_x_numu_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numu_x_nutau_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numu_x_nutau_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numubar_x_nuebar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numubar_x_nuebar_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numubar_x_numubar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numubar_x_numubar_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numubar_x_nutaubar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_FHC_ger_numubar_x_nutaubar_numuselec_gudi.root"
+      - "${OA_INPUTS}/FD_RHC_ger_nue_x_nue_nueselec_gudi.root"
+      - "${OA_INPUTS}/FD_RHC_ger_nue_x_nue_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nue_x_numu_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nue_x_numu_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nue_x_nutau_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nue_x_nutau_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nuebar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nuebar_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nuebar_x_numubar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nuebar_x_numubar_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nutaubar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nutaubar_numuselec_gudi.root"
+      - "${OA_INPUTS}/FD_RHC_ger_numu_x_nue_nueselec_gudi.root"
+      - "${OA_INPUTS}/FD_RHC_ger_numu_x_nue_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numu_x_numu_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numu_x_numu_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numu_x_nutau_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numu_x_nutau_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numubar_x_nuebar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numubar_x_nuebar_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numubar_x_numubar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numubar_x_numubar_numuselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numubar_x_nutaubar_nueselec_gudi.root"
+      #- "${OA_INPUTS}/FD_RHC_ger_numubar_x_nutaubar_numuselec_gudi.root"
+
+
+    # base weight
+    nominalWeightFormula:
+      # - "((isCC!=0||isNC!=0)&&(SwapType==1))? POTScaledWeight : 0.0"
+      - "(isCC!=0||isNC!=0)? POTScaledWeight : 0.0"
+      - "BeRPA_A_cvwgt"
+
+  data:
+
+    - name: "data-FD"
+      tree: "event_tree"
+      filePathList:
+       - "${OA_INPUTS}/FD_FHC_ger_nue_x_nue_nueselec_gudi.root"
+       - "${OA_INPUTS}/FD_FHC_ger_nue_x_nue_numuselec_gudi.root"
+       - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nuebar_nueselec_gudi.root"
+       - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nuebar_numuselec_gudi.root"
+       - "${OA_INPUTS}/FD_FHC_ger_numu_x_numu_nueselec_gudi.root"
+       - "${OA_INPUTS}/FD_FHC_ger_numu_x_numu_numuselec_gudi.root"
+       - "${OA_INPUTS}/FD_FHC_ger_numubar_x_numubar_nueselec_gudi.root"
+       - "${OA_INPUTS}/FD_FHC_ger_numubar_x_numubar_numuselec_gudi.root"
+       - "${OA_INPUTS}/FD_RHC_ger_nue_x_nue_nueselec_gudi.root"
+       - "${OA_INPUTS}/FD_RHC_ger_nue_x_nue_numuselec_gudi.root"
+       - "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nuebar_nueselec_gudi.root"
+       - "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nuebar_numuselec_gudi.root"
+       - "${OA_INPUTS}/FD_RHC_ger_numu_x_numu_nueselec_gudi.root"
+       - "${OA_INPUTS}/FD_RHC_ger_numu_x_numu_numuselec_gudi.root"
+       - "${OA_INPUTS}/FD_RHC_ger_numubar_x_numubar_nueselec_gudi.root"
+       - "${OA_INPUTS}/FD_RHC_ger_numubar_x_numubar_numuselec_gudi.root"
+    
+      nominalWeightFormula:
+        - "POTScaledWeight"
+
+      # overrideLeafDict: # originalVarName, otherLeafName[optionalArrayIndex]
+      #   - { name: "Pmu",            expr: "LepMomZ" }
+      #   - { name: "CosThetamu",     expr: "LepNuAngle" }
+      #   - { name: "SelectedSample", expr: "isCC" }
+    - name: "pValueToys"
+
+      # copy pars from MC
+      #fromMc: true
+      fromModel: true
+      useReweightEngine: true
+      tree: "event_tree"
+
+        # toy files
+      filePathList:
+
+        - "${OA_INPUTS}/FD_FHC_ger_nue_x_nue_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nue_x_nue_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nue_x_numu_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nue_x_numu_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nue_x_nutau_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nue_x_nutau_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nuebar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nuebar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_numubar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_numubar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nutaubar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_nuebar_x_nutaubar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numu_x_nue_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numu_x_nue_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numu_x_numu_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numu_x_numu_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numu_x_nutau_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numu_x_nutau_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numubar_x_nuebar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numubar_x_nuebar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numubar_x_numubar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numubar_x_numubar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numubar_x_nutaubar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_FHC_ger_numubar_x_nutaubar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nue_x_nue_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nue_x_nue_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nue_x_numu_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nue_x_numu_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nue_x_nutau_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nue_x_nutau_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nuebar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nuebar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nuebar_x_numubar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nuebar_x_numubar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nutaubar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_nuebar_x_nutaubar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numu_x_nue_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numu_x_nue_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numu_x_numu_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numu_x_numu_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numu_x_nutau_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numu_x_nutau_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numubar_x_nuebar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numubar_x_nuebar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numubar_x_numubar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numubar_x_numubar_numuselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numubar_x_nutaubar_nueselec_gudi.root"
+        - "${OA_INPUTS}/FD_RHC_ger_numubar_x_nutaubar_numuselec_gudi.root"
+
+
+      # base weight
+      nominalWeightFormula:
+        - "(isCC!=0||isNC!=0)? POTScaledWeight : 0.0"
+        - "BeRPA_A_cvwgt"
+        
+      # additionalWeightFormula:
+      #   - "mode"
+      #   - "POTScaledWeight"
+      #   - "SwapType"

@@ -1,25 +1,27 @@
-# GUNDAM Inputs and Configuration for DUNE Long-baseline Neutrino OA
+# GUNDAM Inputs and Configuration for DUNE Long-Baseline Oscillation Analyses
+
+This repository provides three configurations:
+
+- **FD only:** `./submit_DUNE_FD.sh`
+- **ND only:** `./submit_DUNE_ND.sh`
+- **Combined FD + ND:** `./submit_DUNE_ND_FD.sh`  
+  > Note: the combined configuration is not currently supported by the present GUNDAM version.
+
 ## 0. Input files
-* **On NN home:**
 
-  ```bash
-  #FD inputs
-  export OA_INPUT_FOLDER=/gpfs/projects/McGrewGroup/uyevarou/gudi-inputs/lbl/v5/
-  #ND inputs
-  export ND_INPUTS=/gpfs/projects/McGrewGroup/uyevarou/Work/ND_workshop/
-  ```
+### SeaWulf
 
-* **On dunegpvm:**
+```bash
+# FD-only inputs
+export OA_INPUT_FOLDER=/gpfs/projects/McGrewGroup/uyevarou/gudi-inputs/lbl/v5/
 
-  ```bash
-  export OA_INPUT_FOLDER=/pnfs/dune/persistent/users/uyevarou/GUNDAM/OA-inputs/lbl/gudi-inputs/v5/
-  ```
+# ND-only inputs
+export ND_INPUTS=/gpfs/projects/McGrewGroup/uyevarou/gudi-inputs/lbl/ND_MiniProd53_v1/
 
-* **On seawulf:**
-
-  ```bash
-  export OA_INPUT_FOLDER=/gpfs/projects/McGrewGroup/uyevarou/gudi-inputs/lbl/v5/
-  ```
+# Combined FD + ND inputs
+export OA_INPUTS=/gpfs/projects/McGrewGroup/uyevarou/gudi-inputs/lbl/v4_joint/
+export ND_INPUTS=/gpfs/projects/McGrewGroup/uyevarou/gudi-inputs/lbl/ND_MiniProd53_v1/
+```
 
 ## 1. Set Up the GUNDAM Environment ⚙️
 
@@ -92,7 +94,7 @@ source ${NUOSCILLATOR_ROOT}/bin/setup.NuOscillator.sh
 
 ## 4. Running GUNDAM
 
-Use correctly configured `submit_DUNE.sh` script to perform either a dry run (```-d```) or a full Asimov fit (```-a```). You can adjust the number of cores according to your cluster using the `-t` option.
+Use correctly configured `submit_DUNE_*.sh` script to perform either a dry run (```-d```) or a full Asimov fit (```-a```). You can adjust the number of cores according to your cluster using the `-t` option.
 
 Submit the job script:
 * **On NN home:**
@@ -104,10 +106,10 @@ sbatch nnhome_slurm.sh
 
 **Disable Oscillation Parameters** 
 
-  The Oscillation parameters are provided in the `./inputs/parameters/configParSet.yaml`. To run GUNDAM without oscillation parameters you can use an override file by running the following command
+  The Oscillation parameters are provided in the `./inputs/parameters/configParSet_*.yaml`. To run GUNDAM without oscillation parameters you can use an override file by running the following command
 
   ```bash
-  gundamConfigUnfolder -c config_DUNE.yaml -of overrides/disableOscillationParameters.yaml -o
+  gundamConfigUnfolder -c config_DUNE_*.yaml -of overrides/disableOscillationParameters.yaml -o
   ```
 
   It will create an override configuration file `config_DUNE_With_disableOscillationParameters.json` that can be run by modifying `submit_DUNE.sh` in the following way:
@@ -116,16 +118,16 @@ sbatch nnhome_slurm.sh
   gundamFitter -a -d -c ./config_DUNE_With_disableOscillationParameters.json -t 8
   ```
 
-  Alternatively you can disable oscillation parameter set in the `./inputs/parameters/configParSet.yaml` by changing the following flag to `false` (not recommended):
+  Alternatively you can disable oscillation parameter set in the `./inputs/parameters/configParSet_*.yaml` by changing the following flag to `false` (not recommended):
 
   ```yaml
   - name: "Oscillation Parameters"
     isEnabled: false
   ``` 
-  And run `submit_DUNE.sh` without modification.
+  And run `submit_DUNE_*.sh` without modification.
 
   ```bash
-  ./submit_DUNE.sh
+  ./submit_DUNE_*.sh
   ```
 
 **Change the priors** 
@@ -134,10 +136,10 @@ sbatch nnhome_slurm.sh
   Different priors can be provided for the oscillation parameters by using corresponding override files. For instance, to set up prior values to PDG recommended use the following override file:
 
   ```bash
-  gundamConfigUnfolder -c config_DUNE.yaml -of overrides/pdg25NormalOscillationParameters.yaml -o
+  gundamConfigUnfolder -c config_DUNE_*.yaml -of overrides/pdg25NormalOscillationParameters.yaml -o
   ```
  
-  Then modify `submit_DUNE.sh` to:
+  Then modify `submit_DUNE_*.sh` to:
 
   ```bash
   gundamFitter -a -d -c ./config_DUNE_With_pdg25NormalOscillationParameters.json -t 8
@@ -146,7 +148,7 @@ sbatch nnhome_slurm.sh
   And run:
 
   ```bash
-  ./submit_DUNE.sh
+  ./submit_DUNE_*.sh
   ``` 
 
 ---
@@ -206,9 +208,14 @@ export NUOSCILLATOR_ROOT_LIB=/YOURPATH/gundamOscAnaTools/resources/TabulateNuOsc
 ## Run GUNDAM 🎉
 
 ```bash
-./submit_DUNE.sh
-#To run ND inputs and a few FD input
+# FD-only configuration
+./submit_DUNE_FD.sh
+
+# ND-only configuration
 ./submit_DUNE_ND.sh
+
+# Combined FD + ND configuration
+./submit_DUNE_ND_FD.sh
 ```
 
 Happy fitting! 😊

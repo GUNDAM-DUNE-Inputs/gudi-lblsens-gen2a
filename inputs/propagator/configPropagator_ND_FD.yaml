@@ -9,7 +9,7 @@ debugPrintLoadedEventsNbPerSample: 10
 devSingleThreadReweight: false
 devSingleThreadHistFill: false
 
-sampleSetConfig:        "./inputs/samples/configSamples.yaml"
+sampleSetConfig:        "./inputs/samples/configSamples_ND_FD.yaml"
 parametersManagerConfig:
-  parameterSetList:     "./inputs/parameters/configParSet.yaml"
+  parameterSetList:     "./inputs/parameters/configParSet_ND_FD.yaml"
 

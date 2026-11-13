@@ -2,7 +2,7 @@
 # Configuration for DUNE TDR far detector LBL oscillation sensitivity
 #########################################
 
-outputFolder: "./outputs/"
+outputFolder: "./outputs/FD/"
 minGundamVersion: 1.9.0
 
 fitterEngineConfig:
@@ -34,9 +34,9 @@ fitterEngineConfig:
     enableStatThrowInToys: false
     enableEventMcThrow: false
     gaussStatThrowInToys: false
-    dataSetList:            "./inputs/datasets/configDatasets.yaml"
-    propagatorConfig:       "./inputs/propagator/configPropagator.yaml"
-    plotGeneratorConfig:    "./inputs/output/configPlotGenerator.yaml"
+    dataSetList:            "./inputs/datasets/configDatasets_FD.yaml"
+    propagatorConfig:       "./inputs/propagator/configPropagator_FD.yaml"
+    #plotGeneratorConfig:    "./inputs/output/configPlotGenerator.yaml"
     jointProbabilityConfig:
       type: BarlowLLH_BANFF_OA2021
       allowZeroMcWhenZeroData: true

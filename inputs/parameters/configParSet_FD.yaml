@@ -1746,11 +1746,3 @@
         - dialType: Normalization
           applyOnDataSets: [ "FD" ]
 
-# FDS
-#- name: FDS weight
-#  parameterDefinitions:
-#    - name: "my FDS weight"
-##      dialSetDefinitions:
-#        - dialType: Graph
-#          applyOnDataSets: [ "ND280" ]
-#          treeExpression: "PionFSI_AbsProbGraph"
