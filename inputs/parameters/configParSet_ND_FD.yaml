@@ -1,0 +1,3862 @@
+####################################################################
+# Oscillation Parameters
+####################################################################
+
+- name: "Oscillation Parameters"
+  isEnabled: true
+  enableThrowToyParameters: false
+  nominalStepSize: 1.0
+  parameterDefinitionFilePath: "./inputs/parameters/oscProb/oscCovTDR_NO.root"
+  covarianceMatrix: osc_param_cov
+  parameterNameList: osc_param_names
+  parameterPriorValueList: osc_param_priors
+
+  parameterDefinitions:
+    - name: "PMNS_SIN_SQUARED_12"
+      isEnabled: true
+      priorValue: 0.310 # PDG quotes 0.307
+      parameterStepSize: 0.01
+      #priorType: Flat
+      physicalLimits: [ 0.0, 1.0]
+      parameterLimits: [ 0.0, 1.0]      #parameterLimits: [ 0.25, 0.37 ]
+
+    - name: "PMNS_SIN_SQUARED_13"
+      isEnabled: true
+      priorValue: 0.0224 # PDG quotes 0.0219
+      parameterStepSize: 0.0007
+      #priorType: Flat
+      physicalLimits: [ 0.0, 1.0]
+      parameterLimits: [ 0.0, 1.0 ]
+      #parameterLimits: [ 0.018, 0.034 ]
+
+    - name: "PMNS_SIN_SQUARED_23"
+      isEnabled: true
+      priorValue: 0.582   # PDG quotes 0.558
+      priorType: Flat
+      parameterStepSize: 0.04
+      parameterLimits: [ 0.0, 1.0 ]      
+      #parameterLimits: [ 0.42, 0.62 ]
+
+    - name: "PMNS_DELTA_MASS_SQUARED_21"
+      isEnabled: true
+      priorValue: 7.39E-5
+      #priorType: Flat
+      parameterStepSize: 2.0e-6
+      #parameterLimits: [ 6.96E-5, 8.10E-5 ]    # 3 sigma around PDG
+      #parameterLimits: [ 4E-5, 12E-5 ]
+
+    - name: "PMNS_DELTA_MASS_SQUARED_32"
+      isEnabled: true
+      priorValue: 0.002525
+      priorType: Flat
+      parameterStepSize: 2.6E-4
+      #parameterLimits: [ 2.46e-3, 2.62e-3 ]
+
+    - name: "PMNS_DELTA_CP"
+      isEnabled: true
+      priorValue: -2.498  # 1.19 pi
+      priorType: Flat
+      parameterStepSize: 1.0
+      cyclicRange: [ -3.14159265359, 3.14159265359 ]
+
+    - name: "PMNS_SIGN_MASS_SQUARED_32"
+      isEnabled: true
+      isFixed: true
+      # PDG 2025 value: inverted
+      priorValue: 0.5           # DUNE prior from Nu-Fit 5.2 w/ SK atm
+      priorType: Flat
+      parameterStepSize: 0.5
+      parameterLimits: [ -1.0, 1.0 ]
+
+  dialSetDefinitions:
+
+  #######################################################################3
+  #
+  # MUON TO ELECTRON, MUON, TAU
+  #
+  #######################################################################
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==14 && [nuPDG]==12 && ([file_idx]==15 || [file_idx]==16 || [file_idx]==39 || [file_idx]==40)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu to nue NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR muon"              # muon neutrino flux
+          - "INTERACTION_FLAVOR electron"   # electron neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==14 && [nuPDG]==14 && ([file_idx]==7 || [file_idx]==8 || [file_idx]==31 || [file_idx]==32)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu to numu NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR muon"          # muon neutrino flux
+          - "INTERACTION_FLAVOR muon"   # muon neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==14 && [nuPDG]==16 && ([file_idx]==23 || [file_idx]==24 || [file_idx]==47 || [file_idx]==48)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu to nutau NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR muon"          # muon neutrino flux
+          - "INTERACTION_FLAVOR tau"    # tau neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # ELECTRON TO ELECTRON, MUON, TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==12 && [nuPDG]==12 && ([file_idx]==3 || [file_idx]==4 || [file_idx]==27 || [file_idx]==28)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue to nue NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR electron"          # electron neutrino flux
+          - "INTERACTION_FLAVOR electron"   # electron neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==12 && [nuPDG]==14 && ([file_idx]==19 || [file_idx]==20 || [file_idx]==43 || [file_idx]==44)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue to numu NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR electron"      # electron neutrino flux
+          - "INTERACTION_FLAVOR muon"   # muon neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==12 && [nuPDG]==16 && ([file_idx]==11 || [file_idx]==12 || [file_idx]==35 || [file_idx]==36)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue to nutau NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR electron"      # electron neutrino flux
+          - "INTERACTION_FLAVOR tau"    # tau neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # TAU TO ELECTRON, MUON, TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==16 && [nuPDG]==12"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau to nue NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR tau"             # tau neutrino flux
+          - "INTERACTION_FLAVOR electron" # electron neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==16 && [nuPDG]==14"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau to numu NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR tau"      # tau neutrino flux
+          - "INTERACTION_FLAVOR muon"   # muon neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==16 && [nuPDG]==16"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau to nutau NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR tau"        # tau neutrino flux
+          - "INTERACTION_FLAVOR tau" # tau neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # ANTI-MUON TO ANTI-ELECTRON, ANTI-MUON, ANTI-TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-14 && [nuPDG]==-12 && ([file_idx]==13 || [file_idx]==14 || [file_idx]==37 || [file_idx]==38)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu-bar to nue-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-muon"              # muon anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-electron"   # electron anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-14 && [nuPDG]==-14 && ([file_idx]==5 || [file_idx]==6 || [file_idx]==29 || [file_idx]==30)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu-bar to numu-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-muon"          # muon anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-muon"   # muon anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-14 && [nuPDG]==-16 && ([file_idx]==21 || [file_idx]==22 || [file_idx]==45 || [file_idx]==46)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu-bar to nutau-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-muon"          # muon anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-tau"    # tau anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # ANTI-ELECTRON TO ANTI-ELECTRON, ANTI-MUON, ANTI-TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-12 && [nuPDG]==-12 && ([file_idx]==1 || [file_idx]==2 || [file_idx]==25 || [file_idx]==26)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue-bar to nue-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-electron"          # electron anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-electron"   # electron anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-12 && [nuPDG]==-14 && ([file_idx]==17 || [file_idx]==18 || [file_idx]==41 || [file_idx]==42)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue-bar to numu-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-electron"      # electron anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-muon"   # muon anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-12 && [nuPDG]==-16 && ([file_idx]==9 || [file_idx]==10 || [file_idx]==33 || [file_idx]==34)"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue-bar to nutau-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-electron"      # electron anti-neutrino flux
+          - "INTERACTION_FLAVOR anti-tau"    # tau anti-neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+  #######################################################################3
+  #
+  # ANTI-TAU TO ANTI-ELECTRON, ANTI-MUON, ANTI-TAU
+  #
+  #######################################################################3
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-16 && [nuPDG]==-12"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau-bar to nue-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-tau"             # tau neutrino flux
+          - "INTERACTION_FLAVOR anti-electron" # electron neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-16 && [nuPDG]==-14"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau-bar to numu-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-tau"      # tau neutrino flux
+          - "INTERACTION_FLAVOR anti-muon"   # muon neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "FD" ]
+      applyCondition: "[isCC]==1 && [nuPDGunosc]==-16 && [nuPDG]==-16"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nutau-bar to nutau-bar NuFASTLinear"  # Must be unique.
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-tau"        # tau neutrino flux
+          - "INTERACTION_FLAVOR anti-tau" # tau neutrino
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 1300.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ./inputs/parameters/oscProb/grid_E1000.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Ev"                # Nu energy in GeV
+
+########################################################################
+# FD Flux Systematics:
+# Each parameter represents a bin in true neutrino energy / flavor / FHC-RHC
+########################################################################
+- name: "FD Flux Systematics"
+  isEnabled: true
+  enableThrowToyParameters: false
+  # The flux covariance is very close to singular.  Handle by finding
+  # the eigen vectors and eliminating any vectors with an eigenvalue
+  # that is effectively zero.  The small eigen values have an absolute
+  # value of about 1E-14.
+  enableEigenDecomp: true
+  eigenValueThreshold: 1E-12
+  useEigenDecompForThrows: true
+
+  printDialSetSummary: true
+
+  parameterDefinitionFilePath: "./inputs/parameters/flux/flux_covariance_DUNE_systs_2023.root"
+  covarianceMatrix: xsec_cov
+  parameterPriorValueList: xsec_param_prior
+
+  dialSetDefinitions:
+    - applyOnDataSets: ["FD"]
+      parametersBinningPath: "./inputs/parameters/flux/fluxBinning_DUNE.txt"
+      printDialSummary: true
+
+#########################################################################
+# FD Cross-Section systematics
+#########################################################################
+
+- name: "FD Cross-Section Systematics"
+  isEnabled: true
+  enableThrowToyParameters: false
+  enablePca: true
+
+  #nominalStepSize: 0.1
+
+  # Decompose the cov matrix
+  parameterDefinitionFilePath: "./inputs/parameters/xsec/xsec_covariance_only_DUNE_systs_2023.root"
+  covarianceMatrixTMatrixD: xsec_cov
+  parameterNameList: xsec_param_names
+  parameterPriorValueList: xsec_param_prior
+  parameterLowerBoundsList: xsec_param_lb
+  parameterUpperBoundsList: xsec_param_ub
+  printDialSetSummary: true
+
+  # Toy throwing properties
+  #throwEnabledList: "xsec_param_throw"
+
+  parameterDefinitions:
+
+    - name: "MAQE"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MaCCQE_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "VecFFCCQEshape"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "VecFFCCQEshape_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MaNCEL"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MaNCEL_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "EtaNCEL"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "EtaNCEL_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MaCCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MaCCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MvCCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MvCCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MaNCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MaNCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MvNCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MvNCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "RDecBR1gamma"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "RDecBR1gamma_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "RDecBR1eta"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "RDecBR1eta_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ThetaDelta2NPi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "Theta_Delta2Npi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "AhtBY"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "AhtBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BhtBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BhtBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CV1uBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "CV1uBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CV2uBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "CV2uBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FormZone"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FormZone_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MFP_pi"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MFP_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrCEx_pi"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrCEx_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrElas_pi"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrElas_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrInel_pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrInel_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrAbs_pi"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrAbs_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrPiProd_pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrPiProd_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MFP_N"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MFP_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrCEx_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrCEx_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrElas_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrElas_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrInel_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrInel_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrAbs_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrAbs_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FrPiProd_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FrPiProd_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQEPauliSupViaKF"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "CCQEPauliSupViaKF_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "Mnv2p2hGaussEnhancement"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "Mnv2p2hGaussEnhancement_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MKSPP_ReWeight"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "MKSPP_ReWeight_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "E2p2h_A_nu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "E2p2h_A_nu_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "E2p2h_B_nu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "E2p2h_B_nu_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "E2p2h_A_nubar"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "E2p2h_A_nubar_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "E2p2h_B_nubar"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "E2p2h_B_nubar_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_CC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_CC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_CC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_CC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_CC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_CC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_CC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_CC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_np_CC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_np_CC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_NC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_NC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_NC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_NC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_n_NC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_n_NC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_NC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_NC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_NC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_NC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nu_p_NC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nu_p_NC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_CC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_CC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_CC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_CC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_CC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_CC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_CC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_CC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_CC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_CC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_CC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_CC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_NC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_NC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_NC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_NC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_n_NC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_n_NC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_NC_1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_NC_1Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_NC_2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_NC_2Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "NR_nubar_p_NC_3pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "NR_nubar_p_NC_3Pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BeRPA_A"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BeRPA_A_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BeRPA_B"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BeRPA_B_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BeRPA_D"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BeRPA_D_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "BeRPA_E"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "BeRPA_E_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "EbFSLepMomShift"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "EbFSLepMomShift_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "C12ToAr40_2p2hScaling_nu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "C12ToAr40_2p2hScaling_nu_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "C12ToAr40_2p2hScaling_nubar"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "C12ToAr40_2p2hScaling_nubar_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "nuenuebar_xsec_ratio"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "nuenuebar_xsec_ratio_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "nuemumu_xsec_ratio"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "nuenumu_xsec_ratio_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "SPPLowQ2Suppression"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "SPPLowQ2Suppression_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FSILikeEAvailSmearing"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "FD" ]
+          treeExpression: "FSILikeEAvailSmearing_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+#########################################################################
+# FD Detector systematics
+#########################################################################
+
+- name: "FD Detector Systematics"
+  isEnabled: true
+  enableThrowToyParameters: false
+  enablePca: true
+
+  #nominalStepSize: 0.1
+
+  # Decompose the cov matrix
+  parameterDefinitionFilePath: "./inputs/parameters/detector/FDdetector_covariance_DUNE_systs.root"
+  covarianceMatrixTMatrixD: det_cov
+  parameterNameList: det_param_names
+  parameterPriorValueList: det_param_prior
+  parameterLowerBoundsList: det_param_lb
+  parameterUpperBoundsList: det_param_ub
+  printDialSetSummary: true
+
+  parameterDefinitions:
+
+    - name: "TotalEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleFD_numu_graph" # TObjArray
+
+
+    - name: "TotalEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "TotalEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "HadEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleFD_numu_graph" # TObjArray
+
+    - name: "HadEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "HadEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "MuEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleFD_numu_graph" # TObjArray
+
+    - name: "MuEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "MuEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "NEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleFD_numu_graph" # TObjArray
+
+    - name: "NEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "NEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "EMEScaleFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleFD_numu_graph" # TObjArray
+
+    - name: "EMEScaleSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleSqrtFD_numu_graph" # TObjArray
+
+    - name: "EMEScaleInvSqrtFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleInvSqrtFD_numu_graph" # TObjArray
+
+    - name: "AbsoluteEResFD_numu"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnumu.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "AbsoluteEResFD_numu_graph" # TObjArray
+
+    - name: "NumuFVFD"
+      isEnabled: true
+      priorValue: 1
+      dialSetDefinitions:
+        - dialType: Normalization
+          applyOnDataSets: [ "FD" ]
+
+    - name: "TotalEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleFD_nue_graph" # TObjArray
+
+    - name: "TotalEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "TotalEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "TotalEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "HadEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleFD_nue_graph" # TObjArray
+
+    - name: "HadEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "HadEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "HadEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "MuEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleFD_nue_graph" # TObjArray
+
+    - name: "MuEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "MuEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "MuEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "NEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleFD_nue_graph" # TObjArray
+
+    - name: "NEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "NEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "NEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "EMEScaleFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleFD_nue_graph" # TObjArray
+
+    - name: "EMEScaleSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleSqrtFD_nue_graph" # TObjArray
+
+    - name: "EMEScaleInvSqrtFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "EMEScaleInvSqrtFD_nue_graph" # TObjArray
+
+    - name: "AbsoluteEResFD_nue"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Graph
+          applyOnDataSets: [ "FD" ]
+          binningFilePath: "./inputs/parameters/detector/binning_FDdetsys_Erecnue.txt"
+          dialsFilePath:   "./inputs/parameters/detector/FDdetector_EScale_dials.root"
+          dialsList:       "AbsoluteEResFD_nue_graph" # TObjArray
+
+    - name: "NueFVFD"
+      isEnabled: true
+      priorValue: 1
+      dialSetDefinitions:
+        - dialType: Normalization
+          applyOnDataSets: [ "FD" ]
+
+########################################################################
+# ND Flux Systematics:
+########################################################################
+- name: "ND Flux Systematics"
+  isEnabled: true
+  enableThrowToyParameters: false
+  enablePca: false
+
+  #nominalStepSize: 0.1
+
+  parameterDefinitionFilePath: "./inputs/parameters/flux/FluxSysCov_ND.root"
+  covarianceMatrixTMatrixD: flux_param_cov
+  parameterNameList: flux_param_names
+  parameterPriorValueList: flux_param_priors
+  printDialSetSummary: true
+
+  parameterDefinitions:
+
+    - name: "TargetUpstreamDegredation"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "TargetUpstreamDegredation_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "TargetTiltTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "TargetTiltTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "TargetTiltTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "TargetTiltTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "TargetLength"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "TargetLength_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "TargetDisplaceTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "TargetDisplaceTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "TargetDisplaceTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "TargetDisplaceTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "TargetDensity"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "TargetDensity_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ProtonBeamTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ProtonBeamTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ProtonBeamTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ProtonBeamTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ProtonBeamRadius"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ProtonBeamRadius_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ProtonBeamAngleY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ProtonBeamAngleY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ProtonBeamAngleX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ProtonBeamAngleX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornWaterLayerThickness"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornWaterLayerThickness_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornCurrent"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornCurrent_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornCTiltTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornCTiltTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornCTiltTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornCTiltTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornCEllipticityXInducedBField"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornCEllipticityXInducedBField_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornCEccentricityXInducedBField"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornCEccentricityXInducedBField_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornCDisplaceLongitudinalZ"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornCDisplaceLongitudinalZ_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornBTiltTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornBTiltTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornBTiltTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornBTiltTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornBEllipticityXInducedBField"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornBEllipticityXInducedBField_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornBDisplaceLongitudinalZ"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornBDisplaceLongitudinalZ_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornATiltTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornATiltTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornATiltTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornATiltTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornAEllipticityXInducedBField"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornAEllipticityXInducedBField_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornAEccentricityXInducedBField"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornAEccentricityXInducedBField_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornADisplaceLongitudinalZ"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornADisplaceLongitudinalZ_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipeTiltY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipeTiltY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipeTiltX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipeTiltX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipeRadius"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipeRadius_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipeLength"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipeLength_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipeGeoBField"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipeGeoBField_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipeEllipticalCrossSectionYB"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipeEllipticalCrossSectionYB_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipeEllipticalCrossSectionXA"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipeEllipticalCrossSectionXA_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipeDisplaceTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipeDisplaceTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipeDisplaceTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipeDisplaceTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipe3SegmentBowingY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipe3SegmentBowingY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "DecayPipe3SegmentBowingX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "DecayPipe3SegmentBowingX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornCDisplaceTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornCDisplaceTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornBDisplaceTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornBDisplaceTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornADisplaceTransverseY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornADisplaceTransverseY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornCDisplaceTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornCDisplaceTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornBDisplaceTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornBDisplaceTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "HornADisplaceTransverseX"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "HornADisplaceTransverseX_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_0"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_0_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_1"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_2"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_3"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_4"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_4_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_5"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_5_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_6"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_6_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_7"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_7_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_8"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_8_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_9"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_9_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_10"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_10_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_11"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_11_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_12"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_12_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_13"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_13_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_14"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_14_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_15"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_15_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_16"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_16_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_17"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_17_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_18"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_18_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_19"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_19_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "FluxHadronProductionPCAComponent_20"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "FluxHadronProductionPCAComponent_20_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+#########################################################################
+# ND Cross-Section systematics
+#########################################################################
+
+- name: "ND Cross-Section Systematics"
+  isEnabled: true
+  enableThrowToyParameters: false
+  enablePca: false
+
+  #nominalStepSize: 0.1
+
+  # Decompose the cov matrix
+  parameterDefinitionFilePath: "./inputs/parameters/xsec/XsecSysCov_ND.root"
+  covarianceMatrixTMatrixD: xsec_param_cov
+  parameterNameList: xsec_param_names
+  parameterPriorValueList: xsec_param_priors
+  printDialSetSummary: true
+
+  # Toy throwing properties
+  #throwEnabledList: "xsec_param_throw"
+
+  parameterDefinitions:
+
+    - name: "GENIEReWeight_DUNE_v0_ZExpA1CCQE"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_ZExpA1CCQE_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_ZExpA2CCQE"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_ZExpA2CCQE_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_ZExpA3CCQE"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_ZExpA3CCQE_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_ZExpA4CCQE"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_ZExpA4CCQE_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_VecFFCCQEshape"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_VecFFCCQEshape_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_RPA_CCQE"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_RPA_CCQE_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_CoulombCCQE"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_CoulombCCQE_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NormCCMEC"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NormCCMEC_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NormNCMEC"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NormNCMEC_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_DecayAngMEC"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_DecayAngMEC_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_MaNCEL"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_MaNCEL_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_EtaNCEL"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_EtaNCEL_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_MaCCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_MaCCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_MvCCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_MvCCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_MaNCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_MaNCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_MvNCRES"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_MvNCRES_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvpCC1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvpCC1pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvpCC2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvpCC2pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvpNC1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvpNC1pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvpNC2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvpNC2pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvnCC1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvnCC1pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvnCC2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvnCC2pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvnNC1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvnNC1pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvnNC2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvnNC2pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvbarpCC1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvbarpCC1pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvbarpCC2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvbarpCC2pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvbarpNC1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvbarpNC1pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvbarpNC2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvbarpNC2pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvbarnCC1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvbarnCC1pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvbarnCC2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvbarnCC2pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvbarnNC1pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvbarnNC1pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NonRESBGvbarnNC2pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NonRESBGvbarnNC2pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_RDecBR1gamma"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_RDecBR1gamma_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_RDecBR1eta"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_RDecBR1eta_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_Theta_Delta2Npi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_Theta_Delta2Npi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_ThetaDelta2NRad"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_ThetaDelta2NRad_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NormCCCOH"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NormCCCOH_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_NormNCCOH"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_NormNCCOH_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_AhtBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_AhtBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_BhtBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_BhtBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_CV1uBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_CV1uBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_CV2uBY"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_CV2uBY_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_MFP_pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_MFP_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_FrCEx_pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_FrCEx_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_FrInel_pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_FrInel_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_FrAbs_pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_FrAbs_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_FrPiProd_pi"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_FrPiProd_pi_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_MFP_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_MFP_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_FrCEx_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_FrCEx_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_FrInel_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_FrInel_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_FrAbs_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_FrAbs_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "GENIEReWeight_DUNE_v0_FrPiProd_N"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "GENIEReWeight_DUNE_v0_FrPiProd_N_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ZExpPCAWeighter_DUNE_v0_b1"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ZExpPCAWeighter_DUNE_v0_b1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ZExpPCAWeighter_DUNE_v0_b2"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ZExpPCAWeighter_DUNE_v0_b2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ZExpPCAWeighter_DUNE_v0_b3"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ZExpPCAWeighter_DUNE_v0_b3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ZExpPCAWeighter_DUNE_v0_b4"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ZExpPCAWeighter_DUNE_v0_b4_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin0"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin0_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin1"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin2"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin3"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin4"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToSF_q0bin4_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin0"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin0_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin1"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin2"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin3"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin4"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_LFGToHF_q0bin4_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin0"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin0_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin1"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin2"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin3"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin4"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQETemplateReweight_DUNE_v0_HFToCRPA_q0bin4_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "CCQEXSecCorr_DUNE_v0_CCQEXSecCorr"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "CCQEXSecCorr_DUNE_v0_CCQEXSecCorr_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "QEInterference_DUNE_v0_QEIntf_dial_0"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "QEInterference_DUNE_v0_QEIntf_dial_0_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "QEInterference_DUNE_v0_QEIntf_dial_1"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "QEInterference_DUNE_v0_QEIntf_dial_1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "QEInterference_DUNE_v0_QEIntf_dial_2"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "QEInterference_DUNE_v0_QEIntf_dial_2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "QEInterference_DUNE_v0_QEIntf_dial_3"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "QEInterference_DUNE_v0_QEIntf_dial_3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "QEInterference_DUNE_v0_QEIntf_dial_4"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "QEInterference_DUNE_v0_QEIntf_dial_4_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "QEInterference_DUNE_v0_QEIntf_dial_5"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "QEInterference_DUNE_v0_QEIntf_dial_5_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MECq0q3InterpWeighting_SuSAv2ToValenica_q0binned_all_MECResponse_q0bin0"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "MECq0q3InterpWeighting_SuSAv2ToValenica_q0binned_all_MECResponse_q0bin0_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MECq0q3InterpWeighting_SuSAv2ToValenica_q0binned_all_MECResponse_q0bin1"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "MECq0q3InterpWeighting_SuSAv2ToValenica_q0binned_all_MECResponse_q0bin1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MECq0q3InterpWeighting_SuSAv2ToValenica_q0binned_all_MECResponse_q0bin2"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "MECq0q3InterpWeighting_SuSAv2ToValenica_q0binned_all_MECResponse_q0bin2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MECq0q3InterpWeighting_SuSAv2ToValenica_q0binned_all_MECResponse_q0bin3"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "MECq0q3InterpWeighting_SuSAv2ToValenica_q0binned_all_MECResponse_q0bin3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MECq0q3InterpWeighting_DUNE_v0_SuSAToMar_MECResponse_q0bin0"
+      isEnabled: false
+      #priorValue: 0
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "MECq0q3InterpWeighting_DUNE_v0_SuSAToMar_MECResponse_q0bin0_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MECq0q3InterpWeighting_DUNE_v0_SuSAToMar_MECResponse_q0bin1"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "MECq0q3InterpWeighting_DUNE_v0_SuSAToMar_MECResponse_q0bin1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MECq0q3InterpWeighting_DUNE_v0_SuSAToMar_MECResponse_q0bin2"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "MECq0q3InterpWeighting_DUNE_v0_SuSAToMar_MECResponse_q0bin2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "MECq0q3InterpWeighting_DUNE_v0_SuSAToMar_MECResponse_q0bin3"
+      isEnabled: false
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "MECq0q3InterpWeighting_DUNE_v0_SuSAToMar_MECResponse_q0bin3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ValenciaExc2p2hReweighter_DUNE_v0_DialValencia"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ValenciaExc2p2hReweighter_DUNE_v0_DialValencia_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode0"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode0_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode0"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode0_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode1"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode1"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode1_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode2"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode2"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode2_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode3"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode3"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode3_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode4"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode4_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode4"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode4_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode5"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode5_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode5"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode5_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode6"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode6_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode6"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode6_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode7"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode7_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode7"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode7_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode8"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode8_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode8"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode8_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode9"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode9_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode9"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode9_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode10"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode10_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode10"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode10_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode11"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode11_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode11"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode11_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode12"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode12_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode12"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode12_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode13"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode13_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode13"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode13_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode14"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode14_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode14"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode14_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode15"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode15_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode15"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode15_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode16"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode16_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode16"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode16_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MaRes_ResCode17"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MaRes_ResCode17_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "ResIso_DUNE_v0_MvRes_ResCode17"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          options: catmull-rom, monotonic
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "ResIso_DUNE_v0_MvRes_ResCode17_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "PionAbsWeighter_DUNE_v0_QuasiDeuteronFraction"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "PionAbsWeighter_DUNE_v0_QuasiDeuteronFraction_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "WSReweight_DUNE_v0_nucleus_radius"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "WSReweight_DUNE_v0_nucleus_radius_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true
+
+    - name: "WSReweight_DUNE_v0_surface_thickness"
+      isEnabled: true
+      dialSetDefinitions:
+        - dialType: Spline
+          applyOnDataSets: [ "ND" ]
+          treeExpression: "WSReweight_DUNE_v0_surface_thickness_TGraph"
+          minDialResponse: 0
+          maxDialResponse: 100
+          allowDialExtrapolation: true

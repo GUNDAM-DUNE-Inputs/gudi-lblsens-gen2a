@@ -1,5 +1,5 @@
 #########################################
-# Configuration for DUNE TDR far detector LBL oscillation sensitivity
+# Configuration for DUNE near detector LBL oscillation sensitivity
 #########################################
 
 outputFolder: "./outputs/ND"

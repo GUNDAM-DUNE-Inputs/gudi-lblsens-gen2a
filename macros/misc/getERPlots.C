@@ -98,19 +98,24 @@ namespace {
         std::vector<TH1D*> recoE_mc;
         std::vector<TH1D*> trueE_mc;
 
-        // Data 1D histograms, inclusive.
+        // Reco MC 1D histograms.  These contain every MC event,
+        // including entries with a missing or unsupported mcMode value.
+        TH1D* recoE_mc_total = nullptr;
+        TH1D* trueE_mc_total = nullptr;
+
+        // Data 1D histograms.
         TH1D* recoE_data = nullptr;
         TH1D* trueE_data = nullptr;
 
-        // Inclusive 2D histograms: x = reco energy, y = true energy.
+        // Reco 2D histograms: x = reco energy, y = true energy.
         TH2D* recoTrue2D_mc   = nullptr;
         TH2D* recoTrue2D_data = nullptr;
 
-        // Inclusive weighted event rates.
+        // Reco weighted event rates.
         double rate_mc   = 0.0;
         double rate_data = 0.0;
 
-        // Inclusive raw entry counts.
+        // Reco raw entry counts.
         Long64_t n_mc   = 0;
         Long64_t n_data = 0;
 
@@ -323,6 +328,22 @@ namespace {
             c.trueE_mc[m]->Sumw2();
         }
 
+        c.recoE_mc_total = makeRecoHist1D(
+            Form("hRecoE_%s_mc_total", name.c_str()),
+            Form("MC reco E_{#nu} (%s);Reco E_{#nu} [GeV];Events",
+                 label.c_str()),
+            c.selectionType
+        );
+
+        c.trueE_mc_total = makeTrueHist1D(
+            Form("hTrueE_%s_mc_total", name.c_str()),
+            Form("MC true E_{#nu} (%s);True E_{#nu} [GeV];Events",
+                 label.c_str())
+        );
+
+        c.recoE_mc_total->Sumw2();
+        c.trueE_mc_total->Sumw2();
+
         c.recoE_data = makeRecoHist1D(
             Form("hRecoE_%s_data", name.c_str()),
             Form("Reco E_{#nu} (%s);Reco E_{#nu} [GeV];Events", label.c_str()),
@@ -526,6 +547,67 @@ namespace {
         can.SetRightMargin(0.10);
     }
 
+    // Draw a non-stacked MC total.  Unlike the mode stack, this includes
+    // events regardless of whether mcMode falls in [0, NMODES).
+    void drawTotalWithData(TCanvas& can,
+                           const std::string& pdf,
+                           TH1D* mcHist,
+                           TH1D* dataHist,
+                           const TString& title,
+                           bool drawData = true,
+                           bool logX = false)
+    {
+        const bool hasMC = mcHist && mcHist->Integral() > 0.0;
+        const bool hasData = drawData && dataHist &&
+                             dataHist->Integral() > 0.0;
+
+        if (!hasMC && !hasData) {
+            drawEmptyPage(
+                can,
+                pdf,
+                title,
+                "No entries passed the selection for this plot."
+            );
+            return;
+        }
+
+        can.Clear();
+        can.SetLogz(false);
+        can.SetLogx(logX && kUseCustomRecoBinning);
+
+        TH1D* frame = hasMC ? mcHist : dataHist;
+        frame->SetTitle(title);
+
+        double maxY = 0.0;
+        if (hasMC) maxY = std::max(maxY, mcHist->GetMaximum());
+        if (hasData) maxY = std::max(maxY, dataHist->GetMaximum());
+        if (maxY > 0.0) frame->SetMaximum(1.25 * maxY);
+
+        TLegend leg(0.70, 0.75, 0.96, 0.90);
+        leg.SetBorderSize(0);
+        leg.SetFillStyle(0);
+        leg.SetTextSize(0.03);
+
+        if (hasMC) {
+            mcHist->SetFillColor(kAzure - 9);
+            mcHist->SetLineColor(kAzure + 2);
+            mcHist->SetLineWidth(2);
+            mcHist->Draw("HIST");
+            leg.AddEntry(mcHist, "Model", "f");
+        }
+
+        if (hasData) {
+            dataHist->Draw(hasMC ? "E1 SAME" : "E1");
+            leg.AddEntry(dataHist, "Data", "lep");
+        }
+
+        leg.Draw();
+        can.Print(pdf.c_str());
+
+        can.SetLogx(false);
+        can.SetLogz(false);
+    }
+
     // =========================================================
     // Filling
     // =========================================================
@@ -536,7 +618,7 @@ namespace {
                          double Ereco,
                          double Etrue)
     {
-        // Inclusive event-rate counters.
+        // Event-rate counters.
         if (!isData) {
             cat.rate_mc += w;
             cat.n_mc += 1;
@@ -558,7 +640,17 @@ namespace {
 
         // Fill histograms.
         if (!isData) {
-            // 1D MC histograms are stacked by interaction mode.
+            // MC histograms: every MC event is included, regardless
+            // of whether it has a valid mcMode value.
+            if (std::isfinite(Ereco)) {
+                cat.recoE_mc_total->Fill(Ereco, w);
+            }
+
+            if (std::isfinite(Etrue)) {
+                cat.trueE_mc_total->Fill(Etrue, w);
+            }
+
+            // Mode-separated MC histograms: used only for the stacked plots.
             if (mode >= 0 && mode < NMODES) {
                 if (std::isfinite(Ereco)) {
                     cat.recoE_mc[mode]->Fill(Ereco, w);
@@ -569,7 +661,7 @@ namespace {
                 }
             }
 
-            // 2D MC histogram is inclusive.
+            // 2D MC histogram.
             if (std::isfinite(Ereco) && std::isfinite(Etrue)) {
                 cat.recoTrue2D_mc->Fill(Ereco, Etrue, w);
             }
@@ -639,12 +731,12 @@ namespace {
                 continue;
             }
 
-            TLeaf* leafMode      = tree->GetLeaf("mode");
+            TLeaf* leafMode      = tree->GetLeaf("mcMode");
             TLeaf* leafGenWeight = tree->GetLeaf("eventWeight");
 
-            TLeaf* leafEnuRecoEle = tree->GetLeaf("Ev_reco_nue");
-            TLeaf* leafEnuRecoMu  = tree->GetLeaf("Ev_reco_numu");
-            TLeaf* leafEnuTruth   = tree->GetLeaf("Ev");
+            TLeaf* leafEnuRecoEle = tree->GetLeaf("recoEnu_nue");
+            TLeaf* leafEnuRecoMu  = tree->GetLeaf("recoEnu_numu");
+            TLeaf* leafEnuTruth   = tree->GetLeaf("mcEnu");
 
             if (!leafGenWeight) {
                 std::cerr << "    skipped: eventWeight leaf is missing\n";
@@ -773,6 +865,31 @@ namespace {
             false
         );
 
+        // MC plots.  These do not depend on mcMode and therefore
+        // can differ from the sum of the mode stack when a mode is missing or
+        // lies outside the configured 0..NMODES-1 range.
+        drawTotalWithData(
+            can,
+            pdf,
+            c.recoE_mc_total,
+            c.recoE_data,
+            Form("MC Reco E_{#nu}, all mcMode values (%s);"
+                 "Reco E_{#nu} [GeV];Events", c.label.c_str()),
+            true,
+            false
+        );
+
+        drawTotalWithData(
+            can,
+            pdf,
+            c.trueE_mc_total,
+            c.trueE_data,
+            Form("MC True E_{#nu}, all mcMode values (%s);"
+                 "True E_{#nu} [GeV];Events", c.label.c_str()),
+            hasTrueData,
+            false
+        );
+
         // 2D reco-vs-true energy plots.
         draw2DPage(
             can,
@@ -845,7 +962,7 @@ namespace {
                   << " | " << std::setw(12) << sumDataEntries
                   << "\n";
 
-        std::cout << std::setw(14) << std::left << "INCLUSIVE"
+        std::cout << std::setw(14) << std::left << "TOTAL"
                   << " | " << std::setw(16) << c.rate_mc
                   << " | " << std::setw(16) << c.rate_data
                   << " | " << std::setw(12) << c.n_mc
@@ -854,7 +971,7 @@ namespace {
 
         if (std::fabs(sumModel - c.rate_mc) > 1e-8 ||
             std::fabs(sumData - c.rate_data) > 1e-8) {
-            std::cout << "  Note: TOTAL MODES may differ from INCLUSIVE if some entries "
+            std::cout << "  Note: TOTAL MODES may differ from TOTAL if some entries "
                       << "have missing or invalid mode.\n";
         }
     }
@@ -973,8 +1090,11 @@ void print1DPlotIntegrals(const Category& c)
     }
 
     std::cout << "------------------------------------------------------------\n";
-    std::cout << "  " << std::setw(14) << std::left << "TOTAL MC"
+    std::cout << "  " << std::setw(14) << std::left << "TOTAL MODES MC"
               << " : " << recoMCTotal << "\n";
+
+    std::cout << "  " << std::setw(14) << std::left << "TOTAL MC"
+              << " : " << histIntegral(c.recoE_mc_total) << "\n";
 
     std::cout << "  " << std::setw(14) << std::left << "DATA"
               << " : " << histIntegral(c.recoE_data) << "\n";
@@ -995,8 +1115,11 @@ void print1DPlotIntegrals(const Category& c)
     }
 
     std::cout << "------------------------------------------------------------\n";
-    std::cout << "  " << std::setw(14) << std::left << "TOTAL MC"
+    std::cout << "  " << std::setw(14) << std::left << "TOTAL MODES MC"
               << " : " << trueMCTotal << "\n";
+
+    std::cout << "  " << std::setw(14) << std::left << "TOTAL MC"
+              << " : " << histIntegral(c.trueE_mc_total) << "\n";
 
     std::cout << "  " << std::setw(14) << std::left << "DATA"
               << " : " << histIntegral(c.trueE_data) << "\n";
@@ -1012,7 +1135,7 @@ void getERPlots()
     gStyle->SetOptStat(0);
 
     const char* inputFileName =
-        "/gpfs/projects/McGrewGroup/uyevarou/Work/lbl/lbl_profiling/gudi-lbl-tdr25a/outputs/gundamFitter_config_DUNE_Asimov_DryRun.root";
+        "/gpfs/projects/McGrewGroup/uyevarou/Work/lbl/lbl_ND/gudi-lblsens-gen2a/outputs/ND/gundamFitter_config_DUNE_ND_Asimov_DryRun.root";
 
     printRecoBinning();
 
