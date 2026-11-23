@@ -10,11 +10,11 @@ sampleList:
     isEnabled: true
     binning: "./inputs/samples/binning_DUNE/ND_dune_binning_recoE_numu.txt"
     selectionCutStr: "isFD == 0 && isCC == 1 && numu_CC"
-    dataSets: [ "ND" ]
+    datasets: [ "ND" ]
 
 
   - name: "ND FHC #nu_{e}_like CC "
     isEnabled: true
     binning: "./inputs/samples/binning_DUNE/ND_dune_binning_recoE_nue.txt"
     selectionCutStr: "isFD == 0 && isCC == 1 && nue_CC"
-    dataSets: [ "ND" ]
+    datasets: [ "ND" ]

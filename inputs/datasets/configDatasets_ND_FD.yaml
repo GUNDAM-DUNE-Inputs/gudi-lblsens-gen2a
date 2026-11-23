@@ -25,6 +25,12 @@
     # common tree name where the data are stored in each file
     tree: "event_tree"
 
+    # The ND tree has no sample_idx branch (it is only written in the FD trees by
+    # macros/fileConvertor). Define it as 0 here so the FD sample cuts
+    # (sample_idx == 1..4) can be evaluated on ND events and select nothing.
+    variableDict:
+      - { name: "sample_idx", expr: "0" }
+
     # MC files
     filePathList:
 
@@ -38,8 +44,11 @@
   data:
 
     - name: "data-ND"
-    
+
       tree: "event_tree"
+
+      variableDict:
+        - { name: "sample_idx", expr: "0" }
 
       # MC files
       filePathList:
